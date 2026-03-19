@@ -89,6 +89,45 @@
 }
 
 /* ─────────────────────────────────────────
+   Kirkland case study button
+───────────────────────────────────────── */
+
+.kirkland-case-study-btn {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgb(92, 160, 120);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  font-family: 'Epilogue-Variable', sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.1rem, 3.3vw, 1.5rem);
+  line-height: 1.2;
+  letter-spacing: 0.07rem;
+  transition: background 0.18s ease;
+}
+
+.kirkland-case-study-btn:hover {
+  background: rgb(120, 183, 144);
+}
+
+.kirkland-case-study-btn svg {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────
    Climate Book scoped layout
 ───────────────────────────────────────── */
 

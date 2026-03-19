@@ -1,13 +1,13 @@
 /* Block Type A styles */
-.block-type-a { width: 100%; background: linear-gradient(to right, #181818 0%, #1a1a1a 40%, #111111 75%, #1c1c1c 100%); display: flex; justify-content: center; align-items: center; min-height: 60vh; padding: 0; overflow: hidden; }
+.block-type-a { width: 100%; background: linear-gradient(to right, #161617 0%, #2c2c2d 100%); display: flex; justify-content: center; align-items: center; min-height: 60vh; padding: 0; overflow: hidden; }
 
 .device-wrapper { position: relative; width: 100%; margin: 0 auto; }
 
-.device-frame { position: relative; display: block; width: 100%; height: auto; z-index: 1100; pointer-events: none; touch-action: none; }
+.device-frame { position: relative; display: block; width: 100%; height: auto; z-index: 1100; pointer-events: none; touch-action: none; filter: hue-rotate(200deg) saturate(0.85); }
 
 .screen-overlay { position: absolute; overflow: hidden; display: flex; align-items: center; justify-content: center; z-index: 1000; background-color: #191919; }
 
-.embedded-app { width: 100%; height: 100%; overflow: auto; overflow-y: auto; max-height: 100%; background: #191919; scrollbar-width: none; -ms-overflow-style: none; touch-action: pan-y; overscroll-behavior: auto; -webkit-overflow-scrolling: touch; }
+.embedded-app { position: relative; width: 100%; height: 100%; overflow: auto; overflow-y: auto; max-height: 100%; background: #191919; scrollbar-width: none; -ms-overflow-style: none; touch-action: pan-y; overscroll-behavior: auto; -webkit-overflow-scrolling: touch; }
 
 .embedded-app::-webkit-scrollbar { display: none; }
 
@@ -52,5 +52,3 @@
   .screen-overlay { top: 6%; left: 1%; width: 98%; height: 88%; }
 }
 
-/* Outer scroller */
-.SnappyScrollThingy { overscroll-behavior: auto; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; }

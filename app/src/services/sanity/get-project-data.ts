@@ -35,7 +35,11 @@ const queries: Record<string, string> = {
   }`,
   'rock-coin': `*[_type=="imageDemanded" && title=="coin"][0]{
     alt,
-    image{ asset->{ url } } 
+    image{ asset->{ url } }
+  }`,
+  'kirkland': `*[_type=="mediaBlock" && slug.current=="kirkland"][0]{
+    mediaOne{ alt, image, video{ "webmUrl": webm.asset->url, "mp4Url": mp4.asset->url, poster } },
+    mediaTwo{ alt, image, video{ "webmUrl": webm.asset->url, "mp4Url": mp4.asset->url, poster } }
   }`,
 };
 

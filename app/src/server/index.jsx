@@ -44,7 +44,7 @@ app.use(
 const IS_DEV = process.env.NODE_ENV !== 'production';
 
 const PORT = Number(process.env.PORT) || 3001;
-const HOST = process.env.HOST || (IS_DEV ? '192.168.3.122' : '0.0.0.0');
+const HOST = process.env.HOST || (IS_DEV ? '192.168.29.199' : '0.0.0.0');
 
 const DEV_CLIENT_PORT = Number(process.env.DEV_CLIENT_PORT) || 3000;
 const DEV_HOST_FOR_ASSETS = process.env.DEV_HOST_FOR_ASSETS || HOST;

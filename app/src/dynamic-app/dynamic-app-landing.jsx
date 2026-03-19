@@ -1,9 +1,8 @@
 // src/dynamic-app/dynamic-app-landing.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import Navigation from './components/navigation';
 import TitleDivider from './components/title';
 import SortBy from './components/sortBy';
-import FireworksDisplay from './components/fireworksDisplay';
+import FireworksDisplay from './fireworks';
 import PauseButton from './components/pauseButton';
 import Footer from './components/footer';
 import ObservedCard from './lib/observedCard';
@@ -12,7 +11,6 @@ import IntroOverlay from './components/IntroOverlay';
 import { colorMapping } from './lib/colorString';
 import { useShadowRoot } from '../state/providers/shadow-root-context';
 import indexCss from '../styles/dynamic-app/index.css?raw';
-import miscCss from '../styles/dynamic-app/misc.css?raw';
 import overlayCss from '../styles/loading-overlay.css?raw';
 
 // style injector for the UI cards
@@ -34,7 +32,6 @@ function DynamicTheme({ onReady }) {
   const [lastKnownColor, setLastKnownColor] = useState('#FFFFFF');
   const [isLoading, setIsLoading] = useState(true);
   const [pauseAnimation, setPauseAnimation] = useState(false);
-  const [showNavigation, setShowNavigation] = useState(false);
   const [activeAlts, setActiveAlts] = useState([]);
 
   const toggleFireworksRef = useRef(null);
@@ -47,7 +44,7 @@ function DynamicTheme({ onReady }) {
   const { getShadowRoot, injectStyle } = useShadowRoot();
 
   useEffect(() => {
-    [indexCss, miscCss, overlayCss].forEach(injectStyle);
+    [indexCss, overlayCss].forEach(injectStyle);
   }, [injectStyle]);
 
   useEffect(() => {
@@ -68,7 +65,6 @@ function DynamicTheme({ onReady }) {
         if (cache.icons) setSvgIcons(cache.icons);
         if (Array.isArray(cache.images)) setSortedImages(cache.images);
         setIsLoading(false);
-        setShowNavigation(true);
       })
       .catch(() => {
         if (!cancelled) setIsLoading(false);
@@ -196,19 +192,6 @@ function DynamicTheme({ onReady }) {
       <UIcardsStyle />
 
       <IntroOverlay />
-
-      <div className="navigation-wrapper">
-        {showNavigation && (
-          <Navigation
-            customArrowIcon2={svgIcons['arrow1']}
-            customArrowIcon={svgIcons['arrow2']}
-            items={sortedImages}
-            activeColor={activeColor}
-            isInShadow={typeof getShadowRoot === 'function' && getShadowRoot() !== document}
-            scrollLockContainer={scrollContainerRef.current}
-          />
-        )}
-      </div>
 
       <div className="firework-wrapper">
         <div className="firework-divider">

@@ -1,17 +1,9 @@
 import { useEffect, useRef } from 'react';
 import loadable from '@loadable/component';
-import ViewProject from './components/general-ui/title/view-project';
-import { TitleProvider } from './components/general-ui/title/title-context';
 import ProjectFeed from './content-orchestration/project-feed';
 import { ProjectVisibilityProvider } from './state/providers/project-context';
 
-const NavMenu = loadable(
-  () => import('./components/general-ui/nav/nav-menu'),
-  {
-    ssr: false,
-    fallback: null,
-  }
-);
+const NavMenu = loadable(() => import('./components/general-ui/nav/nav-menu'));
 
 function Frontpage() {
 
@@ -54,9 +46,6 @@ function Frontpage() {
   return (
     <ProjectVisibilityProvider>
       <NavMenu />
-      <TitleProvider>
-        <ViewProject />
-      </TitleProvider>
       <ProjectFeed />
     </ProjectVisibilityProvider>
   );

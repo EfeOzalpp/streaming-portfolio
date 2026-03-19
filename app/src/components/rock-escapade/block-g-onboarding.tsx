@@ -38,34 +38,20 @@ const BlockGOnboarding: React.FC<Props> = ({
   const lottieInstance = useRef<ReturnType<typeof lottie.loadAnimation> | null>(null);
 
   useTooltipInit();
-  const {
-    focusedProjectKey,
-    scrollContainerRef,
-    previousScrollY,
-    setPreviousScrollY,
-  } = useProjectVisibility();
+  const { scrollContainerRef } = useProjectVisibility();
 
   const handleClick = () => {
     if (!ctaEnabled) return; // gate until ready
-    if (focusedProjectKey) {
-      setPreviousScrollY(window.scrollY);
-      setTimeout(() => {
-        if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTo({ top: 0, behavior: 'auto' });
-        } else {
-          window.scrollTo({ top: 0, behavior: 'auto' });
-        }
-      }, 0);
-    }
+    setTimeout(() => {
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTo({ top: 0, behavior: 'auto' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      }
+    }, 0);
     onStart?.();
     setIsFadingOut(true);
   };
-
-  // Restore scroll pos on exit from focus mode
-  useEffect(() => {
-    // (kept from your version — omitted focusedProjectKey setter, just restore)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const initializeLottie = () => {
     if (!lottieRef.current) return;

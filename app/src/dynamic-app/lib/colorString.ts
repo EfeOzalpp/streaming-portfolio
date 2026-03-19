@@ -4,7 +4,7 @@ export const colorMapping: Record<string, [string, string, string, string]> = {
   'Simone Schwartz': ['#d2b3ab', '#e3b6a9', '#6e625f', '#ecc3b8'],
   'Seth Abrahamson': ['#bcbcbc', '#b9b9b9', '#292929', '#c0c0c0'],
   'Sanna Anwar': ['#e9d0a0', '#ffe4af', '#2f2d28', '#ffe7b7'],
-  'Javi Ortiz': ['#d4acbe', '#e8bbd0', '#2b2829', '#e3c4d4'],
+  'Javi Ortiz': ['#c198ab', '#c299ac', '#2b2829', '#e3c4d4'],
   'Janhvi Gokalgandhi': ['#96bbc0', '#a4cdd2', '#242728', '#a9cfd3'],
   'Andrew Adamides': ['#bef9da', '#7ca08d', '#262a28', '#9dccb4'],
   'Shozab Raza': ['#cec9a6', '#e1dcb5', '#2b2a27', '#e2deba'],

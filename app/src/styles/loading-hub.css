@@ -1,6 +1,6 @@
 /* Base */
 .loading-hub { display:grid; place-items:center; text-align:center; touch-action: none; pointer-events: none;}
-.loading-hub__copy { position:relative; overflow:hidden; padding:6px 8px; min-height: 1.8em; width: 100%;}
+.loading-hub__copy { position:relative; overflow:hidden; padding:6px 8px; min-height: 1.8rem; width: 100%;}
 
 /* Animated line (slide up + fade) */
 .loading-hub__line { margin:0; position:absolute; left:0; right:0; top:0; opacity:0; transform:translateY(10px); animation:lh-slide-fade var(--lh-anim,900ms) ease both; will-change:transform,opacity; }
@@ -40,12 +40,12 @@
   .loading-hub--game.loading-hub--right{right:8px;}
   .loading-hub--dynamic { width:500px; }
   .loading-hub-wrap, .loading-hub--game {top: calc(50dvh + 96px); text-align: left;}
-  .loading-hub--game .loading-hub__copy {height: 8.6em; top: 8px;}
+  .loading-hub--game .loading-hub__copy {height: 8.6rem; top: 8px;}
 }
 @media (min-width:768px) and (max-width:1024px) {
   .loading-hub--game.loading-hub--left{left:16px;}
   .loading-hub--game.loading-hub--right{right:16px;}
-  .loading-hub--game .loading-hub__copy {height: 8.6em; top: 8px;}
+  .loading-hub--game .loading-hub__copy {height: 8.6rem; top: 8px;}
   .loading-hub--dynamic { width:500px; }
 }
 @media (min-width:1025px) {

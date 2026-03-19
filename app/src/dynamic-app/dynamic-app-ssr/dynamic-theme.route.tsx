@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import loadable from '@loadable/component';
 import { createPortal } from 'react-dom';
 import { useSsrData } from '../../state/providers/ssr-data-context';
-import { useStyleInjection } from '../../state/providers/style-injector';
 
 import {
   primeDynamicThemeFromSSR as primeFromSSR,
@@ -12,7 +11,6 @@ import {
 import { enhanceDynamicThemeSSR } from '../../ssr/dynamic-app/UIcards+sort';
 import { colorMapping } from '../lib/colorString';
 import fetchSVGIcons from '../lib/fetchSVGIcons';
-import miscCss from '../../styles/dynamic-app/misc.css?raw';
 
 import {
   normalizeIconMap,
@@ -28,38 +26,13 @@ type Quartet = [string, string, string, string];
 type Triplet = [string, string, string];
 
 // client-only chunks
-const Navigation = loadable(() => import('../components/navigation'), { ssr: false });
-const FireworksDisplay = loadable(() => import('../components/fireworksDisplay'), { ssr: false });
+const FireworksDisplay = loadable(() => import('../fireworks'), { ssr: false });
 const Footer = loadable(() => import('../components/footer'), { ssr: false });
 const TitleDivider = loadable(() => import('../components/title'), { ssr: false });
 const PauseButton = loadable(() => import('../components/pauseButton'), { ssr: false });
 
 // SSR shell (UI cards + sort stub)
 const DynamicTheme = loadable(() => import('./placeholder'), { ssr: true });
-
-/* ---------- portals ---------- */
-function NavigationPortal(props: {
-  items: any[];
-  arrow1?: string;
-  arrow2?: string;
-  activeColor?: string;
-}) {
-  const [target, setTarget] = useState<HTMLElement | null>(null);
-  useStyleInjection(miscCss, 'dynamic-app-style-misc');
-  useEffect(() => { setTarget(document.getElementById('dynamic-nav-mount')); }, []);
-  if (!target) return null;
-  return createPortal(
-    <Navigation
-      items={props.items}
-      customArrowIcon2={props.arrow1}
-      customArrowIcon={props.arrow2}
-      activeColor={props.activeColor ?? '#FFFFFF'}
-      isInShadow={false}
-      scrollLockContainer={undefined}
-    />,
-    target
-  );
-}
 
 function FireworksPortal(props: {
   items: any[];
@@ -219,13 +192,6 @@ export default function DynamicThemeRoute() {
   return (
     <>
       <DynamicTheme />
-
-      <NavigationPortal
-        items={propsMemo.items}
-        arrow1={propsMemo.arrow1}
-        arrow2={propsMemo.arrow2}
-        activeColor={activeColor}
-      />
 
       <FireworksPortal
         items={propsMemo.items}

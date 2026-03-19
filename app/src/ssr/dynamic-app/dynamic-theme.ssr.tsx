@@ -12,8 +12,6 @@ export const dynamicThemeSSR: RouteSsrDescriptor = {
     return (
       <section id="dynamic-theme-ssr" className="dynamic-theme-block ssr-initial">
         {/* Client-only portals */}
-        <div className="navigation-wrapper" id="dynamic-nav-mount"></div>
-
         <div className="firework-wrapper">
           <div className="firework-divider" id="dynamic-fireworks-mount"></div>
         </div>

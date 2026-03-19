@@ -1,7 +1,7 @@
 // src/state/providers/agentic-context.tsx
 import React, { createContext, useState, useContext, useRef, useCallback } from 'react';
 
-export type AgenticMode = 'conversation' | 'job-search' | 'svg-creation';
+export type AgenticMode = 'conversation' | 'job-search';
 export type Message = { role: 'user' | 'assistant'; content: string };
 
 interface AgenticContextType {
@@ -22,7 +22,6 @@ const AgenticContext = createContext<AgenticContextType | undefined>(undefined);
 const EMPTY_THREADS: Record<AgenticMode, Message[]> = {
   'conversation': [],
   'job-search': [],
-  'svg-creation': [],
 };
 
 export function AgenticProvider({ children }: { children: React.ReactNode }) {

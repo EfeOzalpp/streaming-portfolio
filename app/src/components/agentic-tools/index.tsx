@@ -2,11 +2,14 @@
 import { AgenticProvider, useAgentic } from '../../state/providers/agentic-context';
 import ChatBox from './chatbox';
 import MessageStream from './message-stream';
+import { useTooltipInit } from '../general-ui/tooltip/tooltipInit';
 import '../../styles/block-type-t.css';
 
-function AgenticSurface() {
+export function AgenticSurface() {
   const { hasMessages, mode, scrollPercent, messages, requestScrollToBottom } = useAgentic();
-  const showFade = hasMessages && mode !== 'svg-creation';
+
+  useTooltipInit();
+  const showFade = hasMessages;
   const showIndicator = messages.length >= 7;
   const caughtUp = scrollPercent >= 95;
 
@@ -19,11 +22,10 @@ function AgenticSurface() {
       {' '}, how's everything?
     </>
   ) : mode === 'job-search' ? "I'll scrape relevant web domains."
-    : mode === 'svg-creation' ? "Let's try to make some SVGs."
     : null;
 
   return (
-    <div className={`at-surface${hasMessages ? ' has-messages' : ''}${mode === 'svg-creation' && hasMessages ? ' svg-top' : ''}`}>
+    <div className={`at-surface tooltip-agentic-tools${hasMessages ? ' has-messages' : ''}`}>
       {showFade && (
         <div className="at-messages-fade">
           <div className="at-top-nav">

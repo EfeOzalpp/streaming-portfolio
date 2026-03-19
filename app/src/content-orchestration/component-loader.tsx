@@ -3,14 +3,6 @@ import { type ComponentType } from 'react';
 import { useSsrData } from '../state/providers/ssr-data-context';
 import { ssrRegistry } from '../ssr/registry';
 
-// ----- Async loaders for non-dynamic projects
-export const componentMap = {
-  rotary: () => import('../components/block-type-1/rotary-lamp'),
-  scoop: () => import('../components/block-type-1/ice-cream-scoop'),
-  dataviz: () => import('../components/block-type-1/data-visualization'),
-  'agentic-tools': () => import('../components/agentic-tools'),
-} as const;
-
 // ----- Split loaders for dynamic (frame & shadow)
 export const dynamicLoaders = {
   frame: () =>
@@ -39,7 +31,7 @@ export const gameLoaders = {
 } as const;
 
 // Explicit union preserves "dynamic" as a valid key
-export type ProjectKey = 'rotary' | 'scoop' | 'dataviz' | 'climate' | 'game' | 'dynamic' | 'agentic-tools';
+export type ProjectKey = 'rotary' | 'scoop' | 'dataviz' | 'climate' | 'game' | 'dynamic' | 'agentic-tools' | 'kirkland';
 
 export interface ProjectMeta {
   key: ProjectKey;
@@ -92,7 +84,46 @@ export const baseProjects: Project[] = [
     title: 'Agentic Tools',
     lazyImport: () => toComponent(import('../components/agentic-tools')),
   },
+  {
+    key: 'kirkland',
+    title: 'Kirkland',
+    lazyImport: () => toComponent(import('../components/block-type-1/kirkland')),
+  },
 ];
+
+type EnhancerLoader = () => Promise<{ default: ComponentType<any> }>;
+
+const ssrEnhancers: Partial<Record<ProjectKey, EnhancerLoader>> = {
+  scoop: () => import('../ssr/content/scoop.enhancer'),
+  rotary: () => import('../ssr/content/rotary.enhancer'),
+  dataviz: () => import('../ssr/content/dataviz.enhancer'),
+  dynamic: () => import('../ssr/content/dynamic.enhancer'),
+  game: () => import('../ssr/content/game.enhancer'),
+  'agentic-tools': () => import('../ssr/content/agentic-tools.enhancer'),
+  kirkland: () => import('../ssr/content/kirkland.enhancer'),
+};
+
+const clientLoaderOverrides: Partial<Record<ProjectKey, Project['lazyImport']>> = {
+  dynamic: () => toComponent(dynamicLoaders.frame()),
+  game: () => toComponent(gameLoaders.components()),
+};
+
+function wrapSsrContent(
+  render: () => ReturnType<NonNullable<(typeof ssrRegistry)[ProjectKey]>['render']>,
+  loadEnhancer?: EnhancerLoader
+) {
+  return async () => {
+    const Enhancer = loadEnhancer ? (await loadEnhancer()).default : null;
+    return {
+      default: () => (
+        <>
+          {render()}
+          {Enhancer ? <Enhancer /> : null}
+        </>
+      ),
+    };
+  };
+}
 
 // Hook that returns a loader respecting SSR (when present) and client lazy loading.
 export function useProjectLoader(key: ProjectKey) {
@@ -106,92 +137,9 @@ export function useProjectLoader(key: ProjectKey) {
   // --- SSR path: render prebuilt HTML (and attach enhancers) ---
   if (payload && desc?.render) {
     const data = (payload as any).data ?? payload;
-
-    if (key === 'rotary') {
-      return async () => {
-        const Enhancer = (await import('../ssr/content/rotary.enhancer')).default;
-        return {
-          default: () => (
-            <>
-              {desc.render!(data)}
-              <Enhancer />
-            </>
-          ),
-        };
-      };
-    }
-
-    if (key === 'scoop') {
-      return async () => {
-        const Enhancer = (await import('../ssr/content/scoop.enhancer')).default;
-        return {
-          default: () => (
-            <>
-              {desc.render!(data)}
-              <Enhancer />
-            </>
-          ),
-        };
-      };
-    }
-
-    if (key === 'dataviz') {
-      return async () => {
-        const Enhancer = (await import('../ssr/content/dataviz.enhancer')).default;
-        return {
-          default: () => (
-            <>
-              {desc.render!(data)}
-              <Enhancer />
-            </>
-          ),
-        };
-      };
-    }
-
-    if (key === 'dynamic') {
-      // the dynamic SSR enhancer computes overlay sizing AND mounts shadow app
-      return async () => {
-        const Enhancer = (await import('../ssr/content/dynamic.enhancer')).default;
-        return {
-          default: () => (
-            <>
-              {desc.render!(data)} {/* SSR frame HTML (picture + img + overlay + spinner) */}
-              <Enhancer />          {/* overlay sizing + shadow attach (lazy by IO/idle) */}
-            </>
-          ),
-        };
-      };
-    }
-
-     if (key === 'game') {
-    return async () => {
-      const Enhancer = (await import('../ssr/content/game.enhancer')).default;
-      return {
-        default: () => (
-          <>
-            {desc.render!(data)} {/* SSR onboarding (coin + text) */}
-            <Enhancer />         {/* Hydrates into BlockGHost when visible/idle */}
-          </>
-        ),
-      };
-    };
-  }
-
-    // Default SSR (no enhancer)
-    return async () => ({ default: () => <>{desc.render!(data)}</> });
+    return wrapSsrContent(() => desc.render!(data), ssrEnhancers[key]);
   }
 
   // --- Client lazy path ---
-  if (key === 'dynamic') {
-    // Ensure the default loader is just the lightweight frame
-    return dynamicLoaders.frame as unknown as () => Promise<{ default: ComponentType<any> }>;
-  }
-
-    if (key === 'game') {
-    // Ensure the default loader is just the lightweight frame
-    return gameLoaders.components as unknown as () => Promise<{ default: ComponentType<any> }>;
-  }
-
-  return project.lazyImport;
+  return clientLoaderOverrides[key] ?? project.lazyImport;
 }

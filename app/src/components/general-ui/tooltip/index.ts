@@ -18,6 +18,7 @@ const sharedEntries = Object.fromEntries(
 const LOCAL_FALLBACK_TAGS: Record<string, string[]> = {
   'block-g': ['UI State Management', 'Touch & Mouse Interaction', 'Backend Score Persistence'],
   dynamic: ['Microfrontend Architecture', 'Scoped Component Rendering', 'Scoped-CSS-styles'],
+  'agentic-tools': ['Claude AI Integration', 'SSE Streaming', 'Agentic Job Search'],
   ...sharedEntries,
 };
 
@@ -27,6 +28,7 @@ const TITLE_BY_KEY: Record<string, string> = {
   'data-viz': 'Data Visualization',
   'block-g': 'Evade the Rock',
   dynamic: 'Dynamic App',
+  'agentic-tools': 'Agentic Tools',
 };
 
 function bgForKey(key: string) {

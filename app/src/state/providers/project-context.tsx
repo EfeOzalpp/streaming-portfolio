@@ -7,15 +7,6 @@ import React, {
   ReactNode,
 } from 'react';
 
-type ViewportAlignArgs = {
-  /** Prefer one of these to identify the block to align */
-  id?: string;              // e.g. 'block-game'
-  key?: string;             // e.g. 'game' -> resolves to #block-game in your aligner
-  el?: HTMLElement | null;  // direct element if you have it
-  /** Re-verify/re-apply on next rAF (helps on mobile Safari) */
-  retry?: boolean;
-};
-
 interface ProjectVisibilityContextType {
   activeProject?: string;
   setActiveProject: (title: string) => void;
@@ -30,21 +21,6 @@ interface ProjectVisibilityContextType {
 
   isDragging: boolean;
   setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
-
-  focusedProjectKey: string | null;
-  setFocusedProjectKey: React.Dispatch<React.SetStateAction<string | null>>;
-
-  previousScrollY: number | null;
-  setPreviousScrollY: React.Dispatch<React.SetStateAction<number | null>>;
-
-  /** Ask ProjectFeed to instantly align a block to the top (no smooth, no bump) */
-  requestViewportAlign: (args: ViewportAlignArgs) => void;
-
-  /**
-   * Register the actual align function (implemented inside ProjectFeed).
-   * ProjectFeed should call this once on mount and clean up on unmount.
-   */
-  registerViewportAlign: (fn: (args: ViewportAlignArgs) => void) => void;
 }
 
 interface ProjectVisibilityProviderProps {
@@ -58,21 +34,8 @@ export const ProjectVisibilityProvider = ({ children }: ProjectVisibilityProvide
   const [blockGClick, setBlockGClick] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [focusedProjectKey, setFocusedProjectKey] = useState<string | null>(null);
-  const [previousScrollY, setPreviousScrollY] = useState<number | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-
-  // ProjectFeed will register its implementation here.
-  const alignFnRef = useRef<(args: ViewportAlignArgs) => void>(() => { /* no-op by default */ });
-
-  const requestViewportAlign = React.useCallback((args: ViewportAlignArgs) => {
-    alignFnRef.current?.(args);
-  }, []);
-
-  const registerViewportAlign = React.useCallback((fn: (args: ViewportAlignArgs) => void) => {
-    alignFnRef.current = fn || (() => {});
-  }, []);
 
   return (
     <ProjectVisibilityContext.Provider
@@ -86,12 +49,6 @@ export const ProjectVisibilityProvider = ({ children }: ProjectVisibilityProvide
         scrollContainerRef,
         isDragging,
         setIsDragging,
-        focusedProjectKey,
-        setFocusedProjectKey,
-        previousScrollY,
-        setPreviousScrollY,
-        requestViewportAlign,
-        registerViewportAlign,
       }}
     >
       {children}

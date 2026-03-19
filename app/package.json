@@ -40,7 +40,7 @@
     "build": "react-app-rewired build",
     "build:ssr": "webpack --config webpack.server.js --mode=production",
     "dev:ssr": "concurrently -k -n CLIENT,SSR-BUILD,SSR -s first \"npm:dev:client\" \"npm:dev:ssr:watch\" \"npm:dev:ssr:run\"",
-    "dev:client": "cross-env PORT=3000 HOST=192.168.3.122 BROWSER=none react-app-rewired start",
+    "dev:client": "cross-env PORT=3000 HOST=192.168.29.199 BROWSER=none react-app-rewired start",
     "dev:ssr:watch": "webpack --config webpack.server.js --mode=development --watch",
     "dev:ssr:run": "cross-env NODE_ENV=development nodemon --watch build-ssr --ext js --exec node build-ssr/server.js",
     "dev:ssr:only": "cross-env NODE_ENV=development node build-ssr/server.js",

@@ -43,4 +43,10 @@ export const projectColors: Record<string, ProjectColor> = {
     defaultAlpha: 0.4,
     themeColor: 'rgb(74, 74, 74)'
   },
+  'Kirkland': {
+    rgb: '92, 160, 120',
+    tooltipAlpha: 0.6,
+    defaultAlpha: 0.5,
+    themeColor: 'rgb(92, 160, 120)'
+  },
 };

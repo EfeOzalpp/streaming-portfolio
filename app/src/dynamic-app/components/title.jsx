@@ -137,20 +137,27 @@ const TitleDivider = ({
     ];
   }, [stableColors]);
 
-  const textSegments = useMemo(() => ['Institute Studio', 'Dynamic Media', 'Fresh Media'], []);
+  const titleLine = useMemo(() => 'Dynamic Media Institute', []);
 
-  const renderMovingContent = (repeat = 2) =>
-    [...Array(repeat)].flatMap((_, r) =>
-      textSegments.map((text, i) => {
-        const color = colors[i];
+  const renderColoredLetters = (text) =>
+    Array.from(text).map((char, index) => {
+      if (char === ' ') {
+        return <span key={`space-${index}`} className="moving-text-space" aria-hidden="true">&nbsp;</span>;
+      }
 
-        return (
-          <span key={`${r}-${i}`} className="moving-text" style={{ color, transition: 'color 120ms linear' }}>
-            {text}
-          </span>
-        );
-      })
-    );
+      return (
+        <span
+          key={`char-${index}`}
+          className="moving-letter"
+          style={{
+            color: colors[index % 2 === 0 ? index % colors.length : (index + 1) % colors.length],
+            transition: 'color 120ms linear',
+          }}
+        >
+          {char}
+        </span>
+      );
+    });
 
   return (
     <div className="title-container" ref={rootRef}>
@@ -161,7 +168,9 @@ const TitleDivider = ({
       </div>
 
       <div className={`moving-title ${pauseAnimation ? 'paused' : ''}`}>
-        <h1 className="title-with-icon moving-text-wrapper">{renderMovingContent()}</h1>
+        <h1 className="title-with-icon moving-text-wrapper static-color-title">
+          {renderColoredLetters(titleLine)}
+        </h1>
       </div>
     </div>
   );

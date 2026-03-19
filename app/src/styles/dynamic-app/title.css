@@ -1,59 +1,31 @@
 /* src/styles/dynamic-app/title.css */
 
-/* General Styles for hero title */
-.moving-title.paused .moving-text-wrapper, .moving-title.paused #Layer_12 { animation-play-state: paused; }
 .moving-title { z-index: 6; }
-@keyframes slide { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-@keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* --- Hover/shift hardening (applies to all breakpoints) --- */
-.logo-container { align-items: center; justify-content: center; flex: 0 0 auto; }
-.svg-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; line-height: 0; vertical-align: middle; transform: translateZ(0); will-change: transform; }
-.svg-icon > svg { display: block; width: 100%; height: 100%; }
-.logo-container, .svg-icon, .svg-icon * { pointer-events: none; }
-#Layer_12 { transform-origin: 50% 50%; }
+.static-color-title { display: flex; flex-wrap: wrap; justify-content: center; }
+.moving-letter, .moving-text-space { display: inline-block; }
 
 /* Hero title for mobile devices */
 @media screen and (max-width: 768px) {
-  .title-container { background-color: #1e1e1f; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding-top: 1.6em; }
-  .static-title { margin-bottom: 20px; padding-left: 1.6em; padding-right: 0.8em; z-index: 3; }
+  .title-container { background-color: #1e1f22; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding-top: 1.6rem; }
+  .static-title { margin-bottom: 20px; padding-left: 1.6rem; padding-right: 0.8rem; z-index: 3; }
 
-  /* Moving title styles */
-  .title-with-icon { display: flex; align-items: center; white-space: nowrap; }
-  .moving-title { position: relative; margin-top: -2.34em; width: 100%; overflow: hidden; z-index: 2; }
-  .moving-title::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; background: linear-gradient(to right, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 2%), linear-gradient(to left, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 2%); }
+  .title-with-icon { display: flex; align-items: center; justify-content: center; white-space: normal; text-align: center; }
+  .moving-title { position: relative; margin-top: -2.34rem; width: 100%; z-index: 2; }
   .moving-title h1 { font-weight: 200 !important; letter-spacing: -1.8px; }
-  .moving-text-wrapper { display: inline-flex; align-items: center; animation: slide var(--animation-speed, 32s) linear infinite; }
-  .moving-text { display: inline-flex; align-items: center; padding-right: 1.8em; }
-  #shadow-dynamic-app .moving-text { padding-right: 2em; }
-  #shadow-dynamic-app .moving-title { margin-top: -2.4em; }
-  #shadow-dynamic-app .logo-container .svg-icon { padding-right: 12px; }
-
-  /* SVG icon styles for rotation and size (stabilized) */
-  .logo-container { margin: 0 0.03em; }
-  .svg-icon { width: 1.1em; height: 1.1em; }
-  #Layer_12 { width: 100%; height: 100%; padding: 0; margin: 0; }
+  .moving-text-wrapper { display: flex; align-items: center; justify-content: center; line-height: 1.1; }
+  #shadow-dynamic-app .moving-title { margin-top: -2.4rem; }
 }
 
 /* Hero title for tablet devices */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
-  .title-container { background-color: #1e1e1f; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding-top: 2.6em; padding-bottom: 2.8em; padding-left: 2.4em; }
-  #shadow-dynamic-app .title-container { padding-top: 1.6em; }
-  .static-title { margin-bottom: 20px; padding-left: 0em; padding-right: 50%; z-index: 3; }
+  .title-container { background-color: #1e1e1f; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding-top: 2.6rem; padding-bottom: 2.8rem; padding-left: 2.4rem; }
+  #shadow-dynamic-app .title-container { padding-top: 1.6rem; }
+  .static-title { margin-bottom: 20px; padding-left: 0rem; padding-right: 50%; z-index: 3; }
 
-  /* Moving title styles */
-  .title-with-icon { display: flex; align-items: center; white-space: nowrap; }
-  .moving-title { position: relative; margin-top: -2.3em; width: 100%; overflow: hidden; z-index: 2; }
-  .moving-title::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; background: linear-gradient(to right, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 5%), linear-gradient(to left, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 5%); }
+  .title-with-icon { display: flex; align-items: center; justify-content: center; white-space: normal; text-align: center; }
+  .moving-title { position: relative; margin-top: -2.3rem; width: 100%; z-index: 2; }
   .moving-title h1 { font-weight: 200 !important; letter-spacing: -0.4px; }
-  .moving-text-wrapper { display: inline-flex; align-items: center; animation: slide 32s linear infinite; }
-  .moving-text { display: inline-flex; align-items: center; padding-right: 108px; }
-  #shadow-dynamic-app .moving-text { padding-right: 146px; }
-
-  /* SVG icon styles for rotation and size (stabilized) */
-  .logo-container { margin: 0 0.03em; }
-  .svg-icon { width: 1.1em; height: 1.1em; }
-  #Layer_12 { width: 100%; height: 100%; padding: 0; margin: 0; }
+  .moving-text-wrapper { display: flex; align-items: center; justify-content: center; line-height: 1.1; }
 }
 
 /* Hero title for desktop devices */
@@ -62,30 +34,16 @@
   .static-title { z-index: 2; width: 50%; white-space: nowrap; text-align: center; }
   #shadow-dynamic-app .static-title { width: auto !important; }
 
-  /* Moving title styles */
-  .title-with-icon { display: flex; align-items: center; white-space: nowrap; }
-  .moving-title { display: flex; justify-content: flex-start; align-items: center; overflow: hidden; width: 66%; position: relative; margin-top: -1.2em; }
-  .moving-title::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; background: linear-gradient(to right, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 15%), linear-gradient(to left, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 15%); background-blend-mode: screen; }
-  #shadow-dynamic-app .moving-title::before { background: linear-gradient(to right, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 24%), linear-gradient(to left, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 24%); }
+  .title-with-icon { display: flex; align-items: center; justify-content: center; white-space: normal; text-align: center; }
+  .moving-title { display: flex; justify-content: center; align-items: center; width: 66%; position: relative; margin-top: -1.2rem; }
 
   .moving-title h1 { font-weight: 200 !important; letter-spacing: 3.2px; }
-  .moving-text-wrapper { display: flex; white-space: nowrap; align-items: center; animation: slide var(--animation-speed, 48s) linear infinite; }
-  .moving-text { align-items: center; padding-right: 74px; mix-blend-mode: difference; }
+  .moving-text-wrapper { display: flex; align-items: center; justify-content: center; line-height: 1.1; }
 
-  /* SVG icon styles for rotation and size (stabilized) */
-  .logo-container { margin: 0 0.04em; position: relative; top: -4px;}
-  .svg-icon { width: 1.3em; height: 1.05em; }
-  #Layer_12 { width: 100%; height: 100%; padding: 0; margin: 0; }
-
-  #shadow-dynamic-app .moving-title { margin-top: 1.2em; width: 60%; }
-  #shadow-dynamic-app #Layer_12 { width: 100%; height: 100%; }
-  #shadow-dynamic-app .moving-text { padding-right: 82px; }
-  #shadow-dynamic-app span.svg-icon { width: 1.04em; height: 1.04em; }
-  #shadow-dynamic-app .logo-container .svg-icon { padding-right: 6px !important; padding-left: 1px; }
+  #shadow-dynamic-app .moving-title { margin-top: 1.2rem; width: 60%; }
 }
 
 @media screen and (min-width: 2025px) {
-  .moving-title { margin-top: -1.2em; }
-  #shadow-dynamic-app .moving-title { margin-top: 0em; }
-  .moving-text { padding-right: 186px; }
+  .moving-title { margin-top: -1.2rem; }
+  #shadow-dynamic-app .moving-title { margin-top: 0rem; }
 }

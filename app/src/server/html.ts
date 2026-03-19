@@ -110,13 +110,14 @@ export function buildHtmlOpen(opts: {
   } = opts;
 
   const ROOT = process.cwd();
-  const cssTheme  = readTextSafe(path.resolve(ROOT, 'src/styles/font+theme.css'));
-  const cssBlocks = readTextSafe(path.resolve(ROOT, 'src/styles/general-block.css'));
+  const cssTheme      = readTextSafe(path.resolve(ROOT, 'src/styles/font+theme.css'));
+  const cssBlocks     = readTextSafe(path.resolve(ROOT, 'src/styles/general-block.css'));
+  const cssAgenticTools = readTextSafe(path.resolve(ROOT, 'src/styles/block-type-t.css'));
 
   // App-level critical CSS only for landing routes
   let appCriticalCss = '';
   if (routePath === '/' || routePath === '/home') {
-    appCriticalCss = prefixCss(cssTheme) + '\n' + prefixCss(cssBlocks);
+    appCriticalCss = prefixCss(cssTheme) + '\n' + prefixCss(cssBlocks) + '\n' + prefixCss(cssAgenticTools);
   }
 
   const projectCriticalCss = extraCriticalCss ? '\n' + extraCriticalCss : '';
