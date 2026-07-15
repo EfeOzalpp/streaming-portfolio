@@ -96,23 +96,20 @@ describe('orderProjectsTopTwoSeeded', () => {
     { key: 'rotary' },
     { key: 'game' },
     { key: 'dataviz' },
-    { key: 'agentic-tools' },
-    { key: 'kirkland' },
+    { key: 'query-searcher' },
   ];
 
-  it('fixed top 4 are always first in correct order', () => {
+  it('fixed top 3 are always first in correct order', () => {
     const result = orderProjectsTopTwoSeeded(projects, 42);
-    expect(result[0].key).toBe('agentic-tools');
-    expect(result[1].key).toBe('kirkland');
-    expect(result[2].key).toBe('dynamic');
-    expect(result[3].key).toBe('game');
+    expect(result[0].key).toBe('query-searcher');
+    expect(result[1].key).toBe('dynamic');
+    expect(result[2].key).toBe('game');
   });
 
-  it('rest projects follow after the fixed top 4', () => {
+  it('rest projects follow after the fixed top 3', () => {
     const result = orderProjectsTopTwoSeeded(projects, 42);
-    const rest = result.slice(4).map(p => p.key);
-    expect(rest).not.toContain('agentic-tools');
-    expect(rest).not.toContain('kirkland');
+    const rest = result.slice(3).map(p => p.key);
+    expect(rest).not.toContain('query-searcher');
     expect(rest).not.toContain('dynamic');
     expect(rest).not.toContain('game');
   });
@@ -127,7 +124,7 @@ describe('orderProjectsTopTwoSeeded', () => {
     const orders = new Set(
       Array.from({ length: 10 }, (_, i) =>
         orderProjectsTopTwoSeeded(projects, i * 1000)
-          .slice(4)
+          .slice(3)
           .map(p => p.key)
           .join(',')
       )

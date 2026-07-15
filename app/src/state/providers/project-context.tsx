@@ -17,10 +17,13 @@ interface ProjectVisibilityContextType {
   currentIndex: number;
   setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
 
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 
   isDragging: boolean;
   setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
+
+  focusedProjectKey: string | null;
+  setFocusedProjectKey: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 interface ProjectVisibilityProviderProps {
@@ -34,6 +37,7 @@ export const ProjectVisibilityProvider = ({ children }: ProjectVisibilityProvide
   const [blockGClick, setBlockGClick] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [focusedProjectKey, setFocusedProjectKey] = useState<string | null>(null);
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -49,6 +53,8 @@ export const ProjectVisibilityProvider = ({ children }: ProjectVisibilityProvide
         scrollContainerRef,
         isDragging,
         setIsDragging,
+        focusedProjectKey,
+        setFocusedProjectKey,
       }}
     >
       {children}

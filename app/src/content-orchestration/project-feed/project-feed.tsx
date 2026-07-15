@@ -1,5 +1,5 @@
 // src/ProjectFeed/ProjectFeed.tsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useProjectVisibility } from '../../state/providers/project-context';
 import { baseProjects, type Project } from '../component-loader';
 import { ProjectPane } from '../project-pane';
@@ -9,6 +9,10 @@ import { orderProjectsTopTwoSeeded } from '../seed/project-order';
 import { useRealMobileViewport } from '../../shared/useRealMobile';
 
 import type { ProjectFeedProps } from './types';
+import { useProjectRefs } from './hooks/useProjectRefs';
+import { useFocusEntryChoreography } from './hooks/useFocusEntryChoreography';
+import { useAutoUnfocusWhileFocused } from './hooks/useAutoUnfocusWhileFocused';
+import { useFocusExitChoreography } from './hooks/useFocusExitChoreography';
 
 function useMaxWidth(max: number) {
   const [matches, setMatches] = useState(false);
@@ -25,7 +29,8 @@ function useMaxWidth(max: number) {
 }
 
 const ProjectFeed = ({ className }: ProjectFeedProps) => {
-  const { scrollContainerRef } = useProjectVisibility();
+  const { scrollContainerRef, focusedProjectKey, setFocusedProjectKey } =
+    useProjectVisibility();
 
   const isRealMobile = useRealMobileViewport();
   const isUnder900 = useMaxWidth(900);
@@ -39,13 +44,61 @@ const ProjectFeed = ({ className }: ProjectFeedProps) => {
   );
   const projects = projectsRef.current;
 
+  const { projectRefs, setProjectRef } = useProjectRefs();
+
+  // Track last non-null focused key (used for exit anchoring)
+  const lastFocusedKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (focusedProjectKey) lastFocusedKeyRef.current = focusedProjectKey;
+  }, [focusedProjectKey]);
+
+  // Preferred exit target (set when user scrolls away during focus)
+  const exitTargetKeyRef = useRef<string | null>(null);
+
+  // Entry: when focus engages, align that pane
+  useFocusEntryChoreography({
+    scrollContainerRef,
+    focusedProjectKey,
+    projectRefs,
+  });
+
+  // While focused: if user scrolls enough that another pane is visible, exit focus
+  useAutoUnfocusWhileFocused({
+    enabled: true,
+    scrollContainerRef,
+    focusedProjectKey,
+    setFocusedProjectKey,
+    projects,
+    exitTargetKeyRef,
+    visRatioToExit: 0.2,
+    visDwellMs: 120,
+  });
+
+  // On focus exit: do the anchor / proximity ramp choreography
+  useFocusExitChoreography({
+    enabled: true,
+    applySnapTransition: isSnapMode,
+    scrollContainerRef,
+    focusedProjectKey,
+    projectRefs,
+    lastFocusedKeyRef,
+    exitTargetKeyRef,
+  });
+
+  const focusedIdx = focusedProjectKey
+    ? projects.findIndex((p) => p.key === focusedProjectKey)
+    : -1;
+
+  const blockIds = useMemo(() => projects.map((p) => `#block-${p.key}`), [projects]);
+  void blockIds; // reserved for future consumers
+
   return (
     <div
       ref={scrollContainerRef}
       className={`Scroll ${className ?? ''} ${isSnapMode ? '' : 'no-snap-desktop'}`}
       style={{
         overflowY: 'auto',
-        scrollSnapType: isSnapMode ? 'y mandatory' : 'none',
+        scrollSnapType: isSnapMode ? (focusedProjectKey ? 'none' : 'y mandatory') : 'none',
         scrollBehavior: isSnapMode ? 'smooth' : 'auto',
         scrollbarWidth: 'none',
         msOverflowStyle: 'none',
@@ -55,15 +108,27 @@ const ProjectFeed = ({ className }: ProjectFeedProps) => {
         .Scroll::-webkit-scrollbar { display: none; }
         .Scroll { overscroll-behavior: auto; }
         .embedded-app { touch-action: pan-y; overscroll-behavior: auto; }
+
+        /* used by exit choreography */
+        .Scroll.no-snap { scroll-snap-type: none !important; }
+        .Scroll.snap-proximity { scroll-snap-type: y proximity !important; }
       `}</style>
 
-      {projects.map((item, idx) => (
-        <ProjectPane
-          key={item.key}
-          item={item}
-          isFirst={idx === 0}
-        />
-      ))}
+      {projects.map((item, idx) => {
+        const isFocused = focusedProjectKey === item.key;
+        const collapseBelow = focusedIdx >= 0 && idx > focusedIdx;
+
+        return (
+          <ProjectPane
+            key={item.key}
+            item={item}
+            isFocused={isFocused}
+            collapseBelow={collapseBelow}
+            isFirst={idx === 0}
+            setRef={(el) => setProjectRef(item.key, el)}
+          />
+        );
+      })}
     </div>
   );
 };

@@ -1,59 +1,42 @@
 // src/content-orchestration/project-pane.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PriorityGateRender from '../behaviors/priority-gate';
 import HeavyMount from '../behaviors/heavy-mount';
 import LoadingScreen from '../state/loading';
 import { useProjectLoader } from './component-loader';
+import type { Project } from './component-loader';
+import { useProjectVisibility } from '../state/providers/project-context';
 import { useSsrData } from '../state/providers/ssr-data-context';
 import { ssrRegistry } from '../ssr/registry';
-import type { ProjectKey } from './component-loader';
+
+/* event-driven details for case study section */
+import EventMount from '../behaviors/event-mount';
+
+import { useOpacityObserver } from '../behaviors/useOpacityObserver';
+
+// Map project keys to their detail component loaders
+const caseStudyLoaders: Record<string, () => Promise<any>> = {
+  game: () => import('../components/case-studies/project-case-studies/rock-escapade'),
+  rotary: () => import('../components/case-studies/project-case-studies/rotary'),
+};
 
 type Props = {
-  item: any;
+  item: Project;
+  isFocused: boolean;
+  setRef: (el: HTMLDivElement | null) => void;
   isFirst?: boolean;
-};
-
-type ProjectBehavior = {
-  allowIdle: boolean;
-  hideLoadingFallback: boolean;
-  observeOwnBlock: boolean;
-  viewportLock: boolean;
-  shadowMount?: {
-    load: () => Promise<any>;
-    mountMode: 'idle';
-  };
-};
-
-const defaultBehavior: ProjectBehavior = {
-  allowIdle: false,
-  hideLoadingFallback: false,
-  observeOwnBlock: false,
-  viewportLock: false,
-};
-
-const projectBehaviorByKey: Partial<Record<ProjectKey, ProjectBehavior>> = {
-  dynamic: {
-    allowIdle: true,
-    hideLoadingFallback: true,
-    observeOwnBlock: false,
-    viewportLock: false,
-    shadowMount: {
-      load: () => import('../components/dynamic-app/shadowEntry'),
-      mountMode: 'idle',
-    },
-  },
-  game: {
-    allowIdle: true,
-    hideLoadingFallback: true,
-    observeOwnBlock: true,
-    viewportLock: true,
-  },
+  /** When true AND not focused, hide this pane completely (display:none) */
+  collapseBelow?: boolean;
 };
 
 export function ProjectPane({
   item,
+  isFocused,
+  setRef,
   isFirst = false,
+  collapseBelow = false,
 }: Props) {
+  const { scrollContainerRef } = useProjectVisibility();
   const load = useProjectLoader(item.key);
   const ssr = useSsrData();
   const payload = ssr?.preloaded?.[item.key];
@@ -65,53 +48,180 @@ export function ProjectPane({
 
   const serverRender =
     payload && desc?.render ? desc.render((payload as any).data ?? payload) : null;
-  const behavior = projectBehaviorByKey[item.key as ProjectKey] ?? defaultBehavior;
+
+  const isDynamic = item.key === 'dynamic';
+  const isGame = item.key === 'game';
+  const usesCustomLoader = isDynamic || isGame;
 
   const fallbackNode =
-    !payload && isHydrated && !behavior.hideLoadingFallback ? (
+    !payload && isHydrated && !usesCustomLoader ? (
       <LoadingScreen isFullScreen={false} />
     ) : null;
 
   const blockId = `block-${item.key}`;
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  // --- Collapsed state (must NOT short-circuit hooks) ---
+  const isCollapsed = collapseBelow && !isFocused;
+
+  // --- Delay unmount on unfocus ---
+  const EXIT_DELAY_MS = 100;
+  const FADE_MS = 100; // keep in sync with <EventMount fadeMs>
+  const [activeDelayed, setActiveDelayed] = useState<boolean>(isFocused);
+  const exitTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (isCollapsed) return; // do nothing while collapsed
+    if (isFocused) {
+      if (exitTimerRef.current) {
+        clearTimeout(exitTimerRef.current);
+        exitTimerRef.current = null;
+      }
+      setActiveDelayed(true);
+    } else {
+      exitTimerRef.current = window.setTimeout(() => {
+        setActiveDelayed(false);
+        exitTimerRef.current = null;
+      }, EXIT_DELAY_MS);
+    }
+    return () => {
+      if (exitTimerRef.current) {
+        clearTimeout(exitTimerRef.current);
+        exitTimerRef.current = null;
+      }
+    };
+  }, [isFocused, isCollapsed]);
+
+  // --- Height reservation during exit fade to prevent layout jump ---
+  const [reserveH, setReserveH] = useState<number | null>(null);
+  const detailsHostRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (isCollapsed) return; // no reservation when collapsed
+    if (!isFocused) {
+      const rafId = requestAnimationFrame(() => {
+        const h = detailsHostRef.current?.getBoundingClientRect().height ?? 0;
+        if (h > 0) setReserveH(h);
+
+        const release = window.setTimeout(() => {
+          setReserveH(null);
+        }, EXIT_DELAY_MS + FADE_MS + 50);
+
+        const cleanup = () => clearTimeout(release);
+        (detailsHostRef as any)._cleanup = cleanup;
+      });
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        (detailsHostRef as any)._cleanup?.();
+        (detailsHostRef as any)._cleanup = undefined;
+      };
+    } else {
+      setReserveH(null);
+    }
+  }, [isFocused, isCollapsed]);
+
+  // --- Opacity control via hook ---
+  useOpacityObserver({
+    targetRef: rootRef,
+    root: scrollContainerRef?.current ?? null,
+
+    // same behavior as before:
+    // - collapsed => opacity 1 (no observer)
+    // - focused OR activeDelayed => opacity 1 (no observer)
+    // - otherwise fade based on intersection ratio
+    disabled: isCollapsed || isFocused || activeDelayed,
+
+    fullAt: 0.75,
+    baseMinDesktop: 0.3,
+    baseMinMobile: 0.1,
+    thresholdSteps: 20,
+  });
 
   return (
     <div
       id={blockId}
-      className={`project-pane ${behavior.viewportLock ? 'is-game' : ''}`}
-      data-viewport-lock={behavior.viewportLock ? 'true' : undefined}
+      ref={(el) => { setRef(el); rootRef.current = el; }}
+      className={`project-pane ${isFocused ? 'is-focused' : ''} ${isGame ? 'is-game' : ''}`}
+      data-viewport-lock={isGame ? 'true' : undefined}
       data-project-key={item.key}
       style={{
+        display: isCollapsed ? 'none' : undefined,
         scrollSnapAlign: 'start',
         scrollSnapStop: 'always',
         contentVisibility: 'auto' as any,
         contain: 'layout paint style',
-        overflow: 'hidden',
+        overflow: isFocused ? 'visible' : 'hidden',
       }}
     >
-      <div className="project-pane-wrapper">
-        <PriorityGateRender
-          load={load}
-          fallback={fallbackNode}
-          serverRender={serverRender}
-          eager={isFirst}
-          allowIdle={behavior.allowIdle}
-          observeTargetId={behavior.observeOwnBlock ? blockId : undefined}
-          placeholderMinHeight={0}
-        />
-        {behavior.shadowMount && !hasSSR ? (
-          <HeavyMount
-            load={behavior.shadowMount.load}
-            mountMode={behavior.shadowMount.mountMode}
-            preloadOnIdle
-            preloadIdleTimeout={2000}
-            preloadOnFirstIO
-            observeTargetId={blockId}
-            rootMargin="0px"
-            placeholderMinHeight={0}
-            componentProps={{ blockId }}
-          />
-        ) : null}
-      </div>
+      {/* Skip heavy children entirely when collapsed */}
+      {!isCollapsed && (
+        <>
+          <div className="project-pane-wrapper">
+            {isDynamic ? (
+              <>
+                <PriorityGateRender
+                  load={load}
+                  serverRender={serverRender}
+                  eager={isFirst}
+                  allowIdle
+                />
+                {!hasSSR && (
+                  <HeavyMount
+                    load={() => import('../components/shadow-dynamic-app/shadowEntry')}
+                    mountMode="idle"
+                    preloadOnIdle
+                    preloadIdleTimeout={2000}
+                    preloadOnFirstIO
+                    observeTargetId={blockId}
+                    rootMargin="0px"
+                    placeholderMinHeight={0}
+                    componentProps={{ blockId }}
+                  />
+                )}
+              </>
+            ) : isGame ? (
+              <PriorityGateRender
+                load={load}
+                serverRender={serverRender}
+                eager={isFirst}
+                allowIdle
+                observeTargetId={blockId}
+                placeholderMinHeight={0}
+              />
+            ) : (
+              <PriorityGateRender
+                load={load}
+                fallback={fallbackNode}
+                serverRender={serverRender}
+                eager={isFirst}
+                allowIdle={false}
+                placeholderMinHeight={0}
+              />
+            )}
+          </div>
+
+          {/* details host: force visible during fade + freeze height to avoid jank */}
+          <div
+            ref={detailsHostRef}
+            style={{
+              height: reserveH != null ? `${reserveH}px` : undefined,
+              contentVisibility: activeDelayed ? ('visible' as any) : undefined,
+              contain: 'paint',
+            }}
+          >
+            {caseStudyLoaders[item.key] && (
+              <EventMount
+                load={caseStudyLoaders[item.key]}
+                active={activeDelayed}
+                fallback={<div style={{ height: '100dvh' }} />}
+                componentProps={{ title: item.title ?? item.key }}
+                fadeMs={FADE_MS}
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

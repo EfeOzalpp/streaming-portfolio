@@ -8,12 +8,12 @@ export const dynamicLoaders = {
   frame: () =>
     import(
       /* webpackChunkName: "dynamic-frame" */
-      '../components/dynamic-app/frame'
+      '../components/shadow-dynamic-app/frame'
     ),
   shadow: () =>
     import(
       /* webpackChunkName: "dynamic-shadow" */
-      '../components/dynamic-app/shadowEntry'
+      '../components/shadow-dynamic-app/shadowEntry'
     ),
 } as const;
 
@@ -31,7 +31,7 @@ export const gameLoaders = {
 } as const;
 
 // Explicit union preserves "dynamic" as a valid key
-export type ProjectKey = 'rotary' | 'scoop' | 'dataviz' | 'climate' | 'game' | 'dynamic' | 'agentic-tools' | 'kirkland';
+export type ProjectKey = 'rotary' | 'scoop' | 'dataviz' | 'climate' | 'game' | 'dynamic' | 'query-searcher';
 
 export interface ProjectMeta {
   key: ProjectKey;
@@ -80,14 +80,9 @@ export const baseProjects: Project[] = [
     lazyImport: () => toComponent(dynamicLoaders.frame()),
   },
   {
-    key: 'agentic-tools',
-    title: 'Agentic Tools',
-    lazyImport: () => toComponent(import('../components/agentic-tools')),
-  },
-  {
-    key: 'kirkland',
-    title: 'Kirkland',
-    lazyImport: () => toComponent(import('../components/block-type-1/kirkland')),
+    key: 'query-searcher',
+    title: 'Query Searcher',
+    lazyImport: () => toComponent(import('../components/query-searcher')),
   },
 ];
 
@@ -99,8 +94,7 @@ const ssrEnhancers: Partial<Record<ProjectKey, EnhancerLoader>> = {
   dataviz: () => import('../ssr/content/dataviz.enhancer'),
   dynamic: () => import('../ssr/content/dynamic.enhancer'),
   game: () => import('../ssr/content/game.enhancer'),
-  'agentic-tools': () => import('../ssr/content/agentic-tools.enhancer'),
-  kirkland: () => import('../ssr/content/kirkland.enhancer'),
+  'query-searcher': () => import('../ssr/content/query-searcher.enhancer'),
 };
 
 const clientLoaderOverrides: Partial<Record<ProjectKey, Project['lazyImport']>> = {

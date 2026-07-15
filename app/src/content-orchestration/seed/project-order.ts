@@ -3,7 +3,7 @@ import { seededShuffle } from './index';
 
 export type Keyed = { key: string };
 
-const FIXED_ORDER = ['agentic-tools', 'kirkland', 'dynamic', 'game'] as const;
+const FIXED_ORDER = ['query-searcher', 'dynamic', 'game'] as const;
 
 export function orderProjectsTopTwoSeeded<T extends Keyed>(
   projects: readonly T[],
