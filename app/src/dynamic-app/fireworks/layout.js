@@ -34,7 +34,7 @@ export function getExplosionTarget(p, band) {
   }
 
   return {
-    x: randomOutsideBand(p, p.width * 0, p.width * 1, p.width * 0.4, p.width * 0.6),
+    x: randomOutsideBand(p, p.width * 0.1, p.width * 0.9, p.width * 0.4, p.width * 0.6),
     y: p.random(p.height * 0.1, p.height * 0.2),
   };
 }
