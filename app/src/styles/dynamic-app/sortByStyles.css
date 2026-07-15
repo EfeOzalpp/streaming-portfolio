@@ -88,7 +88,7 @@ div.option.selected { padding-top: 12px; padding-bottom: 12px; }
 
 .options-container { position: absolute; z-index: 1000; background: #222222; left: -1.6px; right: -1.6px; width: auto; top: calc(100% - 6px); box-sizing: border-box; padding-top: 8px; padding-bottom: 8px; border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; }
 
-.students-heading { left: 0; }
+.students-heading { left: 0; top: 24px; }
 #shadow-dynamic-app .students-heading { left: 0; }
 
 .pause-button-wrapper { padding-bottom: 4em; padding-left: 2.4em; min-height: 2em; }
@@ -137,7 +137,7 @@ div.option.selected { padding-top: 14px; padding-bottom: 14px; }
 .options-container { position: absolute; z-index: 1000; background: #222222; left: -1.6px; right: -1.6px; width: auto; top: calc(100% - 8px); box-sizing: border-box; padding-top: 8px; padding-bottom: 8px; border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; }
 #shadow-dynamic-app .options-container { top: calc(100% - 8px); }
 
-.students-heading { left: 0px; }
+.students-heading { left: 0px; top: 24px; }
 #shadow-dynamic-app .students-heading { left: 0px; }
 
 .pause-button-wrapper { padding-left: clamp(10%, calc(50vw - 350px), 36%); padding-top: 1.6em; min-height: 2.2em; }
