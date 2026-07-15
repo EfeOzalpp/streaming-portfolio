@@ -1,4 +1,4 @@
-// src/dynamic-app/components/introOverlay.jsx
+// src/dynamic-app/components/redIntroOverlay.jsx
 import React, { useEffect, useState } from 'react';
 
 const RedIntroOverlay = () => {

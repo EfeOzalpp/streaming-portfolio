@@ -8,7 +8,7 @@ import PauseButton from './components/pauseButton';
 import Footer from './components/footer';
 import ObservedCard from './lib/observedCard';
 import setupAltObserver from './lib/setupAltObserver';
-import IntroOverlay from './components/introOverlay';
+import IntroOverlay from './components/redIntroOverlay';
 import { colorMapping } from './lib/colorString';
 import { useShadowRoot } from '../state/providers/shadow-root-context';
 import indexCss from '../styles/dynamic-app/index.css?raw';
