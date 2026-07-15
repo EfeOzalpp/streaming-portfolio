@@ -33,7 +33,7 @@ const Footer = ({ customArrowIcon2, linkArrowIcon }) => {
       <div className="footer-info">
         <div className="nav-item">
           <a
-            href="https://www.linkedin.com/in/efe-ozalp/" 
+            href="https://github.com/EfeOzalpp"
             target="_blank"
             rel="noopener noreferrer"
             className="nav-link-2"

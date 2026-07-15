@@ -48,6 +48,9 @@ function SortBy({
   const [items, setItems] = useState([]);
 
   const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
+  const optionRefs = useRef({});
+  const listboxId = 'sort-by-listbox';
 
   // inject CSS into shadow root (or document)
   useStyleInjection(sortByCss, 'dynamic-app-style-sortby');
@@ -56,6 +59,45 @@ function SortBy({
     setSelectedValue(value);
     if (value === 'random') setRandomTick(t => t + 1); // re-shuffle on every click
     setIsOpen(false);
+    triggerRef.current?.focus();
+  };
+
+  const focusOption = (value) => {
+    optionRefs.current[value]?.focus();
+  };
+
+  // keep focus in sync when the list opens/closes
+  useEffect(() => {
+    if (isOpen) focusOption(selectedValue);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleTriggerKeyDown = (e) => {
+    if (['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
+      e.preventDefault();
+      setIsOpen(true);
+    } else if (e.key === 'Escape') {
+      setIsOpen(false);
+    }
+  };
+
+  const handleOptionKeyDown = (e, value) => {
+    const index = options.findIndex(o => o.value === value);
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleOptionClick(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setIsOpen(false);
+      triggerRef.current?.focus();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      focusOption(options[(index + 1) % options.length].value);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      focusOption(options[(index - 1 + options.length) % options.length].value);
+    } else if (e.key === 'Tab') {
+      setIsOpen(false);
+    }
   };
 
   const handleClickOutside = (e) => {
@@ -202,25 +244,44 @@ function SortBy({
             boxShadow: `0 1px 8px rgba(0,0,0,0.1), 0 22px 8px rgba(0,0,0,0.08), 8px 8px ${boxShadowItemColor}`,
           }}
         >
-          <div className="custom-select" onClick={() => setIsOpen(!isOpen)}>
+          <div
+            ref={triggerRef}
+            className="custom-select"
+            role="combobox"
+            aria-haspopup="listbox"
+            aria-expanded={isOpen}
+            aria-controls={listboxId}
+            aria-label="Sort by"
+            tabIndex={0}
+            onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+            onKeyDown={handleTriggerKeyDown}
+          >
             <div className="selected-value">
-              <h5>{options.find(opt => opt.value === selectedValue)?.label}</h5>
+              <span>{options.find(opt => opt.value === selectedValue)?.label}</span>
             </div>
-            <span className={`custom-arrow ${isOpen ? 'open' : ''}`}>
+            <span className={`custom-arrow ${isOpen ? 'open' : ''}`} aria-hidden="true">
               {customArrowIcon && <div dangerouslySetInnerHTML={{ __html: customArrowIcon }} />}
             </span>
           </div>
 
           {isOpen && (
             <div
+              id={listboxId}
+              role="listbox"
+              aria-label="Sort by"
               className="options-container"
               style={{ border: `solid 1.6px ${borderItemColor}`, borderTop: 'none' }}
             >
               {options.map((option) => (
                 <div
                   key={option.value}
+                  ref={(el) => { optionRefs.current[option.value] = el; }}
+                  role="option"
+                  aria-selected={option.value === selectedValue}
+                  tabIndex={0}
                   className={`option ${option.value === selectedValue ? 'selected' : ''}`}
                   onClick={() => handleOptionClick(option.value)}
+                  onKeyDown={(e) => handleOptionKeyDown(e, option.value)}
                 >
                   {option.label}
                 </div>

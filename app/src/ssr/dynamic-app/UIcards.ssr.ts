@@ -141,8 +141,10 @@ export function renderUIcardsHTML(
             </a>
             <h-name class="image-title custom-card-${i}">
               <a href="${url1}" class="ui-link-2 custom-card-${i}">
-                <span class="title-text">${escapeHtml(it?.title ?? '')}</span>
-                ${iconHtml}
+                <span class="title-row">
+                  <span class="svg-con" aria-hidden="true">${iconHtml}</span>
+                  <span class="title-text">${escapeHtml(it?.title ?? '')}</span>
+                </span>
               </a>
             </h-name>
           </div>

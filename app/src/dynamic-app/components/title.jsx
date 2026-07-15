@@ -1,5 +1,5 @@
 // src/dynamic-app/components/title.jsx
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useStyleInjection } from '../../state/providers/style-injector.ts';
 import titleCss from '../../styles/dynamic-app/title.css?raw';
 
@@ -15,6 +15,45 @@ const TitleDivider = ({
   useStyleInjection(titleCss, 'dynamic-app-style-title');
 
   const rootRef = useRef(null);
+  const movingTitleRef = useRef(null);
+  const textWrapperRef = useRef(null);
+
+  // measure real container/content widths so the marquee's off-screen
+  // start/end positions are exact at every breakpoint, not guessed via
+  // vw/% units (which don't reconcile: translateX(%) is self-relative)
+  useLayoutEffect(() => {
+    const containerEl = movingTitleRef.current;
+    const contentEl = textWrapperRef.current;
+    if (!containerEl || !contentEl || typeof ResizeObserver === 'undefined') return;
+
+    // Track the last-applied widths so a ResizeObserver tick that reports
+    // the same (or near-same, sub-pixel-jitter) size doesn't rewrite the
+    // custom properties -- the running @keyframes animation reads these for
+    // its start/end translateX, so any reset mid-flight makes it visibly
+    // jump/stutter, which happens often during scroll (scrollbar show/hide,
+    // nav reflow, etc. all fire spurious ResizeObserver ticks).
+    let lastContainerW = -1;
+    let lastContentW = -1;
+
+    const applyMarqueeWidths = () => {
+      const containerW = containerEl.clientWidth;
+      const contentW = contentEl.offsetWidth;
+
+      if (Math.abs(containerW - lastContainerW) < 2 && Math.abs(contentW - lastContentW) < 2) return;
+
+      lastContainerW = containerW;
+      lastContentW = contentW;
+      containerEl.style.setProperty('--marquee-container-w', `${containerW}px`);
+      containerEl.style.setProperty('--marquee-content-w', `${contentW}px`);
+    };
+
+    applyMarqueeWidths();
+
+    const ro = new ResizeObserver(applyMarqueeWidths);
+    ro.observe(containerEl);
+    ro.observe(contentEl);
+    return () => ro.disconnect();
+  }, []);
 
   // visibility gating (same behavior as your old working one)
   const [isVisible, setIsVisible] = useState(true);
@@ -167,8 +206,8 @@ const TitleDivider = ({
         </h1>
       </div>
 
-      <div className={`moving-title ${pauseAnimation ? 'paused' : ''}`}>
-        <h1 className="title-with-icon moving-text-wrapper static-color-title">
+      <div className={`moving-title ${pauseAnimation ? 'paused' : ''}`} ref={movingTitleRef}>
+        <h1 className="title-with-icon moving-text-wrapper static-color-title" ref={textWrapperRef}>
           {renderColoredLetters(titleLine)}
         </h1>
       </div>

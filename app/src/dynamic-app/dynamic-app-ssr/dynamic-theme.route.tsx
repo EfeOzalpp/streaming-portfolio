@@ -1,5 +1,5 @@
 // src/dynamic-app/dynamic-app-ssr/dynamic-theme.route.tsx
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import loadable from '@loadable/component';
 import { createPortal } from 'react-dom';
 import { useSsrData } from '../../state/providers/ssr-data-context';
@@ -9,6 +9,8 @@ import {
   ensureDynamicThemePreload as ensureDynamicPreload,
 } from '../preload-dynamic-app-route';
 import { enhanceDynamicThemeSSR } from '../../ssr/dynamic-app/UIcards+sort';
+import { enhanceTitle, type TitleEnhancerHandle } from '../../ssr/dynamic-app/title.enhancer';
+import { enhanceNavigation, type NavigationEnhancerHandle } from '../../ssr/dynamic-app/navigation.enhancer';
 import { colorMapping } from '../lib/colorString';
 import fetchSVGIcons from '../lib/fetchSVGIcons';
 
@@ -23,17 +25,15 @@ import { computeStateFromPalette } from '../lib/palette';
 
 // local types to satisfy TS based on your controller’s API
 type Quartet = [string, string, string, string];
-type Triplet = [string, string, string];
 
 // client-only chunks
 const FireworksDisplay = loadable(() => import('../fireworks'), { ssr: false });
-const Footer = loadable(() => import('../components/footer'), { ssr: false });
-const TitleDivider = loadable(() => import('../components/title'), { ssr: false });
 const PauseButton = loadable(() => import('../components/pauseButton'), { ssr: false });
 
 // SSR shell (UI cards + sort stub)
 const DynamicTheme = loadable(() => import('./placeholder'), { ssr: true });
 
+/* ---------- portals ---------- */
 function FireworksPortal(props: {
   items: any[];
   activeColor: string;
@@ -55,50 +55,14 @@ function FireworksPortal(props: {
   );
 }
 
-function TitlePortal(props: {
-  logoSvg?: string;
-  movingTextColors?: Triplet;
-  pauseAnimation?: boolean;
-}) {
-  const [target, setTarget] = useState<HTMLElement | null>(null);
-  useEffect(() => { setTarget(document.getElementById('dynamic-title-mount')); }, []);
-  if (!target) return null;
-  return createPortal(
-    <TitleDivider
-      svgIcon={props.logoSvg || ''}
-      movingTextColors={props.movingTextColors || ['#FFFFFF', '#FFFFFF', '#FFFFFF']}
-      pauseAnimation={!!props.pauseAnimation}
-    />,
-    target
-  );
-}
-
 function PausePortal(props: { onToggle: (isEnabled: boolean) => void }) {
   const [target, setTarget] = useState<HTMLElement | null>(null);
+  // #dynamic-pause-mount is an empty .pause-button-wrapper server-side; its
+  // own min-height (see sortByStyles.css) reserves the button's footprint,
+  // so the portal can append straight into it with no placeholder to clear.
   useEffect(() => { setTarget(document.getElementById('dynamic-pause-mount')); }, []);
   if (!target) return null;
-  return createPortal(
-    <div className="pause-button-wrapper">
-      <PauseButton toggleP5Animation={props.onToggle} />
-    </div>,
-    target
-  );
-}
-
-function FooterPortal(props: {
-  arrow1?: string;
-  linkArrowIcon?: string;
-}) {
-  const [target, setTarget] = useState<HTMLElement | null>(null);
-  useEffect(() => { setTarget(document.getElementById('dynamic-footer-mount')); }, []);
-  if (!target) return null;
-  return createPortal(
-    <Footer
-      customArrowIcon2={props.arrow1}
-      linkArrowIcon={props.linkArrowIcon}
-    />,
-    target
-  );
+  return createPortal(<PauseButton toggleP5Animation={props.onToggle} />, target);
 }
 
 /* ---------- route ---------- */
@@ -108,16 +72,16 @@ export default function DynamicThemeRoute() {
 
   const [items, setItems] = useState<any[]>(Array.isArray(preload?.images) ? preload!.images : []);
   const [icons, setIcons] = useState<Record<string, string>>(normalizeIconMap(preload?.icons || {}));
-  const [pauseAnimation, setPauseAnimation] = useState(false);
 
   const [activeColor, setActiveColor] = useState('#FFFFFF');
-  const [movingTextColors, setMovingTextColors] = useState<Triplet>(['#FFFFFF', '#FFFFFF', '#FFFFFF']);
   const [lastKnownColor, setLastKnownColor] = useState('#FFFFFF');
 
   const fwToggleRef = useRef<((enabled: boolean) => void) | null>(null);
+  const titleHandleRef = useRef<TitleEnhancerHandle | null>(null);
+  const navHandleRef = useRef<NavigationEnhancerHandle | null>(null);
   const handleSetToggleFireworks = (fn: (enabled: boolean) => void) => { fwToggleRef.current = fn; };
   const handlePauseToggle = (isEnabled: boolean) => {
-    setPauseAnimation(!isEnabled);
+    titleHandleRef.current?.setPaused(!isEnabled);
     try { fwToggleRef.current?.(isEnabled); } catch {}
   };
 
@@ -162,56 +126,62 @@ export default function DynamicThemeRoute() {
     return () => { dead = true; };
   }, [icons]);
 
+  // enhanceDynamicThemeSSR should only ever be initialized once per mount --
+  // read the latest activeColor via a ref instead of depending on it, so this
+  // effect doesn't tear down and re-run the whole enhancer on every color change.
+  const activeColorRef = useRef(activeColor);
+  useEffect(() => { activeColorRef.current = activeColor; }, [activeColor]);
+
+  // arrow2 may not be ready yet when the enhancer first mounts (e.g. it only
+  // arrives via the async fetchSVGIcons fallback) -- push updates through so
+  // the scroll-hint icon isn't permanently frozen on an empty initial value.
+  useEffect(() => {
+    if (icons['arrow2']) navHandleRef.current?.setScrollHintIcon(icons['arrow2']);
+  }, [icons]);
+
   // compute palette-driven state from the enhancer (which gives a Quartet)
   useEffect(() => {
-    if (typeof window !== 'undefined')
-      enhanceDynamicThemeSSR({
-        onColorChange: (_alt: string, palette?: string[] | null) => {
-          // only accept quartets
-          if (!Array.isArray(palette) || palette.length < 4) return;
-          const { activeColor: nextActive, movingText: nextTriplet, lastKnown } =
-            computeStateFromPalette(palette as Quartet);
+    if (typeof window === 'undefined') return;
+    titleHandleRef.current = enhanceTitle();
+    navHandleRef.current = enhanceNavigation(icons['arrow2']);
+    const dispose = enhanceDynamicThemeSSR({
+      onColorChange: (_alt: string, palette?: string[] | null) => {
+        // only accept quartets
+        if (!Array.isArray(palette) || palette.length < 4) return;
+        const { activeColor: nextActive, lastKnown } = computeStateFromPalette(palette as Quartet);
 
-          if (nextActive !== activeColor) {
-            setActiveColor(nextActive);
-            setLastKnownColor(lastKnown ?? nextActive);
-          }
-          setMovingTextColors(nextTriplet as Triplet);
-        },
-      });
-  }, [activeColor]);
-
-  const propsMemo = useMemo(() => ({
-    items,
-    arrow1: icons['arrow1'] || '',
-    arrow2: icons['arrow2'] || '',
-    linkArrowIcon: icons['link-icon'] || '',
-    logoSmall: icons['logo-small-1'] || '',
-  }), [items, icons]);
+        if (nextActive !== activeColorRef.current) {
+          setActiveColor(nextActive);
+          setLastKnownColor(lastKnown ?? nextActive);
+        }
+        navHandleRef.current?.updateActiveColor(nextActive);
+      },
+      // title's marquee colors are derived straight from activeAlts + colorMapping,
+      // same as title.jsx's own logic -- no need to route it through React state.
+      onActiveAltsChange: (alts: string[]) => titleHandleRef.current?.updateColors(alts, colorMapping),
+    });
+    return () => {
+      dispose?.();
+      titleHandleRef.current?.dispose();
+      titleHandleRef.current = null;
+      navHandleRef.current?.dispose();
+      navHandleRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
       <DynamicTheme />
 
       <FireworksPortal
-        items={propsMemo.items}
+        items={items}
         activeColor={activeColor}
         lastKnownColor={lastKnownColor}
         onToggleFireworks={handleSetToggleFireworks}
       />
 
-      <TitlePortal
-        logoSvg={propsMemo.logoSmall}
-        movingTextColors={movingTextColors}
-        pauseAnimation={pauseAnimation}
-      />
-
       <PausePortal onToggle={handlePauseToggle} />
-
-      <FooterPortal
-        arrow1={propsMemo.arrow1}
-        linkArrowIcon={propsMemo.linkArrowIcon}
-      />
     </>
   );
 }

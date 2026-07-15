@@ -45,7 +45,6 @@ const DynamicAppInbound = ({ onFocusChange, onReady }) => {
       });
       el.dispatchEvent(down);
       onFocusChange?.(true);
-      console.log('[Focus triggered in embedded app]');
     };
 
     const handleTouchStart = (e) => {

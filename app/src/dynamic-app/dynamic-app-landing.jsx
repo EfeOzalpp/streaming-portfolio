@@ -1,5 +1,6 @@
 // src/dynamic-app/dynamic-app-landing.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Navigation from './components/navigation';
 import TitleDivider from './components/title';
 import SortBy from './components/sortBy';
 import FireworksDisplay from './fireworks';
@@ -7,14 +8,15 @@ import PauseButton from './components/pauseButton';
 import Footer from './components/footer';
 import ObservedCard from './lib/observedCard';
 import setupAltObserver from './lib/setupAltObserver';
-import IntroOverlay from './components/IntroOverlay';
+import IntroOverlay from './components/introOverlay';
 import { colorMapping } from './lib/colorString';
 import { useShadowRoot } from '../state/providers/shadow-root-context';
 import indexCss from '../styles/dynamic-app/index.css?raw';
+import miscCss from '../styles/dynamic-app/misc.css?raw';
 import overlayCss from '../styles/loading-overlay.css?raw';
 
 // style injector for the UI cards
-import { UIcardsStyle } from './components/homepage-UIcards';
+import { UIcardsStyle } from './components/homepageUIcards';
 
 import {
   getPreloadedDynamicApp,
@@ -32,6 +34,7 @@ function DynamicTheme({ onReady }) {
   const [lastKnownColor, setLastKnownColor] = useState('#FFFFFF');
   const [isLoading, setIsLoading] = useState(true);
   const [pauseAnimation, setPauseAnimation] = useState(false);
+  const [showNavigation, setShowNavigation] = useState(false);
   const [activeAlts, setActiveAlts] = useState([]);
 
   const toggleFireworksRef = useRef(null);
@@ -44,7 +47,7 @@ function DynamicTheme({ onReady }) {
   const { getShadowRoot, injectStyle } = useShadowRoot();
 
   useEffect(() => {
-    [indexCss, overlayCss].forEach(injectStyle);
+    [indexCss, miscCss, overlayCss].forEach(injectStyle);
   }, [injectStyle]);
 
   useEffect(() => {
@@ -65,6 +68,7 @@ function DynamicTheme({ onReady }) {
         if (cache.icons) setSvgIcons(cache.icons);
         if (Array.isArray(cache.images)) setSortedImages(cache.images);
         setIsLoading(false);
+        setShowNavigation(true);
       })
       .catch(() => {
         if (!cancelled) setIsLoading(false);
@@ -79,6 +83,17 @@ function DynamicTheme({ onReady }) {
     observerRoot.current = root;
   }, [getShadowRoot]);
 
+  // Refs mirroring the latest color state so handleActivate/handleDeactivate
+  // can read current values without depending on them -- keeping these
+  // callbacks stable across renders. Otherwise, since they set the very
+  // state they depend on, each activation would recreate the alt-observer
+  // effect below (which re-fires a synchronous bootstrap pick on setup),
+  // risking a render loop if that bootstrap pick flips back and forth.
+  const activeColorRef = useRef(activeColor);
+  useEffect(() => { activeColorRef.current = activeColor; }, [activeColor]);
+  const lastKnownColorRef = useRef(lastKnownColor);
+  useEffect(() => { lastKnownColorRef.current = lastKnownColor; }, [lastKnownColor]);
+
   const handleActivate = useCallback((alt1) => {
     const quartet = resolvePalette(alt1, colorMapping);
     if (!Array.isArray(quartet) || quartet.length < 4) return;
@@ -86,16 +101,16 @@ function DynamicTheme({ onReady }) {
     const { activeColor: nextActive, movingText: nextTriplet, lastKnown } =
       computeStateFromPalette(quartet);
 
-    if (nextActive !== activeColor) {
+    if (nextActive !== activeColorRef.current) {
       setActiveColor(nextActive);
       setLastKnownColor(lastKnown ?? nextActive);
     }
     setMovingTextColors(nextTriplet);
-  }, [activeColor]);
+  }, []);
 
   const handleDeactivate = useCallback(() => {
-    if (activeColor !== lastKnownColor) setActiveColor(lastKnownColor);
-  }, [activeColor, lastKnownColor]);
+    if (activeColorRef.current !== lastKnownColorRef.current) setActiveColor(lastKnownColorRef.current);
+  }, []);
 
   const currentAltRef = useRef(null);
   useEffect(() => {
@@ -193,6 +208,19 @@ function DynamicTheme({ onReady }) {
 
       <IntroOverlay />
 
+      <div className="navigation-wrapper">
+        {showNavigation && (
+          <Navigation
+            customArrowIcon2={svgIcons['arrow1']}
+            customArrowIcon={svgIcons['arrow2']}
+            items={sortedImages}
+            activeColor={activeColor}
+            isInShadow={typeof getShadowRoot === 'function' && getShadowRoot() !== document}
+            scrollLockContainer={scrollContainerRef.current}
+          />
+        )}
+      </div>
+
       <div className="firework-wrapper">
         <div className="firework-divider">
           <FireworksDisplay
@@ -205,19 +233,17 @@ function DynamicTheme({ onReady }) {
         </div>
       </div>
 
-      <div className="section-divider"></div>
-
-      <div className="title-divider">
-        <TitleDivider
-          svgIcon={svgIcons['logo-small-1']}
-          movingTextColors={movingTextColors}
-          pauseAnimation={pauseAnimation}
-          activeAlts={activeAlts}
-          colorMapping={colorMapping}
-        />
-      </div>
-
       <div id="homePage">
+        <div className="title-divider">
+          <TitleDivider
+            svgIcon={svgIcons['logo-small-1']}
+            movingTextColors={movingTextColors}
+            pauseAnimation={pauseAnimation}
+            activeAlts={activeAlts}
+            colorMapping={colorMapping}
+          />
+        </div>
+
         <div className="no-overflow">
           <div className="pause-button-wrapper">
             <PauseButton toggleP5Animation={handlePauseToggle} />
@@ -234,15 +260,12 @@ function DynamicTheme({ onReady }) {
             />
           </div>
 
-          <div className="section-divider2"></div>
-
           <div className="UI-card-divider">
             {sortedImages.map((data, index) => (
               <ObservedCard
                 key={index}
                 data={data}
                 index={index}
-                getShadowRoot={getShadowRoot}
                 pauseAnimation={pauseAnimation}
                 customArrowIcon2={svgIcons['arrow1']}
                 imagePriority={index < 2}   // only prioritize the first couple

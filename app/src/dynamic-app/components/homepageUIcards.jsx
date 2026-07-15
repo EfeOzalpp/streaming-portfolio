@@ -43,7 +43,6 @@ const UIcards = React.forwardRef(function UIcards(
         <h-name className={`image-title ${className}`}>
           <a href={url1} className={`ui-link-2 ${className}`}>
             <span className="title-row">
-              <span className="title-text">{title}</span>
               {customArrowIcon2 ? (
                 <span className="svg-con" aria-hidden="true">
                   <span className="svg-icon" dangerouslySetInnerHTML={{ __html: customArrowIcon2 }} />
@@ -51,6 +50,7 @@ const UIcards = React.forwardRef(function UIcards(
               ) : (
                 <span className="svg-con" aria-hidden="true" />
               )}
+              <span className="title-text">{title}</span>
             </span>
           </a>
         </h-name>

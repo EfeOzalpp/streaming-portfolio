@@ -1,7 +1,7 @@
 // src/ssr/dynamic-app/UIcards+sort.tsx
 import { ensureDynamicThemePreload } from '../../dynamic-app/preload-dynamic-app-route';
-import setupIntersectionObserver from '../../dynamic-app/lib/documentObserver';
-import { createSsrAltObserver } from '../logic/dynamic-alt-observer';
+import { setupIntersectionObserver } from '../../dynamic-app/lib/cardTransformCore';
+import setupAltObserver from '../../dynamic-app/lib/setupAltObserver';
 import { colorMapping } from '../../dynamic-app/lib/colorString';
 
 /* =========================
@@ -99,7 +99,8 @@ function hexToRgba(hex: string, alpha = 0.65): string {
    ========================= */
 
 // Rule: ≥1025px → 3rd card, 768–1024 → 2nd card, <768 → 1st card.
-// Use that card’s alt → colorMapping[alt][1].
+// Use that card’s alt → colorMapping[alt][2] (border) / colorMapping[alt][3] (box-shadow),
+// matching the React sortBy.jsx treatment used by the shadow-embedded widget.
 function computeViewportIndex(width: number) {
   return width >= 1025 ? 2 : width >= 768 ? 1 : 0;
 }
@@ -118,17 +119,26 @@ function applySortChromeColorFromDomOrder(listContainer: HTMLElement, sortRoot: 
   if (!alt) return;
 
   const colors = (colorMapping as any)?.[alt];
-  const color = Array.isArray(colors) ? (colors[1] || null) : null;
-  if (!color) return;
+  if (!Array.isArray(colors)) return;
 
-  const borderRgba = hexToRgba(color, 0.3);
+  const borderColor = colors[2] || '#ffffff';
+  const boxShadowColor = colors[3] || '#ffffff';
+
+  const borderRgba = hexToRgba(borderColor, 0.6);
 
   (sortRoot as HTMLElement).style.border = `solid 1.6px ${borderRgba}`;
   (sortRoot as HTMLElement).style.boxShadow = `
     0 1px 8px rgba(0,0,0,0.1),
     0 22px 8px rgba(0,0,0,0.08),
-    12px 12px ${color}
+    8px 8px ${boxShadowColor}
   `;
+
+  // Listbox border matches the same color, no top edge (sits flush under the trigger)
+  const optionsEl = sortRoot.querySelector('.options-container') as HTMLElement | null;
+  if (optionsEl) {
+    optionsEl.style.border = `solid 1.6px ${borderRgba}`;
+    optionsEl.style.borderTop = 'none';
+  }
 }
 
 /* =========================
@@ -162,69 +172,83 @@ function preload(fullUrl: string) {
   });
 }
 
-// Background queue that eventually swaps every remaining image
-let _bgHQStarted = false;
-let _bgCancel: (() => void) | null = null;
-
-function upgradeAllImagesInBackground(root: Document | HTMLElement, maxConcurrent = 3) {
-  if (_bgHQStarted) return _bgCancel || null;
-  _bgHQStarted = true;
-
-  const pool = new Set<Promise<any>>();
+// Background queue that eventually swaps every remaining image. Factory so
+// each enhanceDynamicThemeSSR() call gets its own started/cancelled state
+// instead of sharing module-level flags that never reset across calls.
+function createBackgroundImageUpgrader() {
+  let started = false;
   let cancelled = false;
 
-  const allImgs = Array.from(root.querySelectorAll('img[data-src-full]')) as HTMLImageElement[];
+  function run(root: Document | HTMLElement, maxConcurrent = 3) {
+    if (started) return;
+    started = true;
 
-  // Optional: prioritize by distance from viewport top (still “all”, just nicer order)
-  const vhMid = window.scrollY + window.innerHeight / 2;
-  allImgs.sort((a, b) => {
-    const ra = a.getBoundingClientRect(); const rb = b.getBoundingClientRect();
-    const ya = ra.top + window.scrollY; const yb = rb.top + window.scrollY;
-    return Math.abs(ya - vhMid) - Math.abs(yb - vhMid);
-  });
+    const pool = new Set<Promise<any>>();
+    const allImgs = Array.from(root.querySelectorAll('img[data-src-full]')) as HTMLImageElement[];
 
-  let index = 0;
+    // Optional: prioritize by distance from viewport top (still “all”, just nicer order)
+    const vhMid = window.scrollY + window.innerHeight / 2;
+    allImgs.sort((a, b) => {
+      const ra = a.getBoundingClientRect(); const rb = b.getBoundingClientRect();
+      const ya = ra.top + window.scrollY; const yb = rb.top + window.scrollY;
+      return Math.abs(ya - vhMid) - Math.abs(yb - vhMid);
+    });
 
-  const pump = () => {
-    if (cancelled) return;
-    while (pool.size < maxConcurrent && index < allImgs.length) {
-      const el = allImgs[index++];
-      const full = (el.dataset as any)?.srcFull;
-      if (!full) continue;
+    let index = 0;
 
-      const task = preload(full).then(() => {
-        if (cancelled) return;
-        // If still pointing to LQ and not already swapped, replace
-        if (el.isConnected && el.getAttribute('data-src-full') === full) {
-          // keep lazy decoding; just change the source
-          el.src = full;
-          el.removeAttribute('data-src-full');
-        }
-      }).finally(() => {
-        pool.delete(task);
-        pump();
-      });
+    const pump = () => {
+      if (cancelled) return;
+      while (pool.size < maxConcurrent && index < allImgs.length) {
+        const el = allImgs[index++];
+        const full = (el.dataset as any)?.srcFull;
+        if (!full) continue;
 
-      pool.add(task);
-    }
-  };
+        const task = preload(full).then(() => {
+          if (cancelled) return;
+          // If still pointing to LQ and not already swapped, replace
+          if (el.isConnected && el.getAttribute('data-src-full') === full) {
+            // keep lazy decoding; just change the source
+            el.src = full;
+            el.removeAttribute('data-src-full');
+          }
+        }).finally(() => {
+          pool.delete(task);
+          pump();
+        });
 
-  pump();
+        pool.add(task);
+      }
+    };
 
-  const cancel = () => { cancelled = true; };
-  _bgCancel = cancel;
-  return cancel;
+    pump();
+  }
+
+  function cancel() { cancelled = true; }
+
+  return { run, cancel };
 }
 
 /* =========================
    Main enhancer (DOM-driven, seed-proof for A↔Z)
    ========================= */
 
-export function enhanceDynamicThemeSSR(opts: { onColorChange?: (alt: string, colors: string[]) => void } = {}) {
-  const { onColorChange } = opts;
+export function enhanceDynamicThemeSSR(opts: {
+  onColorChange?: (alt: string, colors: string[]) => void;
+  onActiveAltsChange?: (alts: string[]) => void;
+} = {}) {
+  const { onColorChange, onActiveAltsChange } = opts;
 
   const host = document.getElementById('dynamic-theme-ssr');
-  if (!host || (host as any).__enhanced) return;
+  if (!host) {
+    // This route only works when #dynamic-theme-ssr was injected by the server
+    // (see server/render/dynamicRoute.ts + server/html.ts). If this ever fires,
+    // something is mounting DynamicThemeRoute without a real SSR page load
+    // (e.g. client-side routing instead of a full <a href> navigation) --
+    // the page will render blank without this snapshot.
+    console.error('[dynamic-theme] #dynamic-theme-ssr not found -- this route requires a full page load, not client-side navigation.');
+    return;
+  }
+  if ((host as any).__enhanced) return;
   (host as any).__enhanced = true;
 
   // make the SSR section interactive now
@@ -236,7 +260,12 @@ export function enhanceDynamicThemeSSR(opts: { onColorChange?: (alt: string, col
   if (snapshot) snapshot.style.pointerEvents = 'auto';
 
   const listContainer = snapshot?.querySelector(SEL.list) as HTMLElement | null;
-  if (!listContainer) return;
+  if (!listContainer) {
+    console.error('[dynamic-theme] .UI-card-divider not found inside the SSR snapshot -- cards grid markup is missing or malformed.');
+    return;
+  }
+
+  const bgUpgrader = createBackgroundImageUpgrader();
 
   // Sort UI bits
   const sortRoot = document.querySelector('#dynamic-sortby-mount .custom-dropdown') as HTMLElement | null;
@@ -259,8 +288,11 @@ export function enhanceDynamicThemeSSR(opts: { onColorChange?: (alt: string, col
 
   const openOptions = () => { optionsEl!.style.display = ''; arrowEl?.classList.add('open'); };
   const closeOptions = () => { optionsEl!.style.display = 'none'; arrowEl?.classList.remove('open'); };
-  document.addEventListener('mousedown', (e) => { if (!sortRoot?.contains(e.target as Node)) closeOptions(); });
-  selectEl?.addEventListener('click', () => {
+  const onDocumentMousedown = (e: MouseEvent) => { if (!sortRoot?.contains(e.target as Node)) closeOptions(); };
+  document.addEventListener('mousedown', onDocumentMousedown);
+  selectEl?.addEventListener('mousedown', (e) => { e.preventDefault(); e.stopPropagation(); });
+  selectEl?.addEventListener('click', (e) => {
+    e.stopPropagation();
     const isOpen = optionsEl!.style.display !== 'none';
     isOpen ? closeOptions() : openOptions();
   });
@@ -281,18 +313,22 @@ export function enhanceDynamicThemeSSR(opts: { onColorChange?: (alt: string, col
   const prefersReduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   setupIntersectionObserver(prefersReduced, document);
 
-  // Observer for color dynamics
-  let altObs: ReturnType<typeof createSsrAltObserver> | null = null;
+  // Observer for color dynamics — shares setupAltObserver with the shadow-embedded path
+  let disposeAltObs: (() => void) | null = null;
   const rearmAlt = () => {
-    if (altObs) altObs.dispose();
-    altObs = createSsrAltObserver({
-      rootElement: document,
-      onActivate: (alt1: string) => {
+    disposeAltObs?.();
+    disposeAltObs = setupAltObserver(
+      (alt1: string) => {
         const colors = (colorMapping as any)?.[alt1];
         if (typeof onColorChange === 'function' && colors) onColorChange(alt1, colors);
       },
-      onDeactivate: () => { /* no-op */ },
-    });
+      () => { /* no-op */ },
+      document,
+      {
+        onActivateMany: (alts: string[]) => onActiveAltsChange?.(alts),
+        topN: 3,
+      }
+    );
   };
 
   const afterReorder = () => {
@@ -300,8 +336,9 @@ export function enhanceDynamicThemeSSR(opts: { onColorChange?: (alt: string, col
     setupIntersectionObserver(true, document);
     setupIntersectionObserver(false, document);
 
-    // ensure observer tracks current nodes
-    altObs?.rearm();
+    // full rearm: dispose + reinvoke re-runs setupAltObserver's own bootstrap pass
+    // so colors/active-alts recompute immediately against the new DOM order
+    rearmAlt();
 
     // apply SortBy color from current DOM order according to viewport rule
     applySortChromeColorFromDomOrder(listContainer, sortRoot);
@@ -309,7 +346,7 @@ export function enhanceDynamicThemeSSR(opts: { onColorChange?: (alt: string, col
     // visible first
     upgradeVisibleImages(document);
     // and make sure the background queue is running for the rest
-    upgradeAllImagesInBackground(document, 3);
+    bgUpgrader.run(document, 3);
   };
 
   // DOM-driven sort (seed-proof): use <img alt> from each card
@@ -352,7 +389,7 @@ export function enhanceDynamicThemeSSR(opts: { onColorChange?: (alt: string, col
   const onResize = debounce(() => {
     applySortChromeColorFromDomOrder(listContainer, sortRoot);
     upgradeVisibleImages(document);
-    upgradeAllImagesInBackground(document, 3);
+    bgUpgrader.run(document, 3);
   }, 150);
   window.addEventListener('resize', onResize);
 
@@ -367,9 +404,16 @@ export function enhanceDynamicThemeSSR(opts: { onColorChange?: (alt: string, col
       // visible images first
       upgradeVisibleImages(document);
       // then *everything else* via background queue
-      upgradeAllImagesInBackground(document, 3);
+      bgUpgrader.run(document, 3);
     });
 
-  // optional cleanup (enable if your route unmounts)
-  // return () => { window.removeEventListener('resize', onResize); altObs?.dispose(); _bgCancel?.(); };
+  // Cleanup: not yet called anywhere (this route is always a fresh full-page
+  // load today), but available for when that changes.
+  return () => {
+    window.removeEventListener('resize', onResize);
+    document.removeEventListener('mousedown', onDocumentMousedown);
+    disposeAltObs?.();
+    bgUpgrader.cancel();
+    (host as any).__enhanced = false;
+  };
 }
