@@ -5,6 +5,12 @@
   pointer-events: none;
 }
 
+#shadow-dynamic-app .firework-wrapper {
+  width: 100%;
+  height: 0;
+  background-color: transparent;
+}
+
 .firework-divider {
   position: absolute;
   inset-inline: 0;
@@ -13,11 +19,19 @@
   background-color: #1e1e1f;
 }
 
+#shadow-dynamic-app .firework-divider {
+  top: 0;
+  width: 100%;
+  z-index: 1;
+  background-color: transparent;
+}
+
 .fireworks-canvas {
   position: relative;
   width: 100%;
   height: 100%;
   pointer-events: none;
+  background-color: #1e1e1f;
 }
 
 .fireworks-canvas .q5Canvas {
@@ -27,47 +41,22 @@
   width: 100% !important;
   height: 100% !important;
   overflow: hidden;
-  background: transparent !important;
 }
 
 .fireworks-canvas canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
+  display: block;
   pointer-events: none;
-  background-color: transparent !important;
-}
-
-#shadow-dynamic-app .firework-wrapper {
-  width: 100%;
-  height: 0;
-  background-color: transparent;
-}
-
-#shadow-dynamic-app .firework-divider {
-  top: 0;
-  width: 100%;
-  z-index: 1;
-  transform: scale(0.9);
-  transform-origin: top center;
-  background-color: transparent;
 }
 
 @media screen and (max-width: 767px) {
+
   .firework-divider {
     margin-top: -3.6rem;
-    transform: scale(1);
-  }
-
-  #shadow-dynamic-app .firework-divider {
-    margin-top: -3.6rem;
-    transform: scale(0.85);
   }
 
   #shadow-dynamic-app .fireworks-canvas .q5Canvas {
     position: relative;
     z-index: 2 !important;
-    transform: scale(0.9);
   }
 }
 
@@ -77,44 +66,20 @@
   }
 
   #shadow-dynamic-app .firework-divider {
-    height: 16rem;
-    transform: scale(0.88);
+    height: 60rem;
   }
 }
 
 @media screen and (min-width: 1025px) {
-  .firework-divider {
-    margin-top: -6.8rem;
-  }
 
   #shadow-dynamic-app .firework-divider {
     height: 100dvh;
-    transform: scale(1);
-  }
-}
-
-@media screen and (min-width: 1225px) {
-  .firework-divider {
-    margin-top: -6.8rem;
   }
 
-  #shadow-dynamic-app .firework-divider {
-    height: 36rem;
-    transform: scale(0.95);
-  }
-}
-
-@media screen and (min-width: 2025px) {
-  .firework-divider {
-    margin-top: -12.8rem;
-    overflow: hidden;
-  }
-
-  #shadow-dynamic-app .firework-divider {
-    transform: scale(1.1);
-  }
-
-  .fireworks-canvas .q5Canvas {
-    transform: scale(1.4);
+  /* Desktop keeps the opaque backdrop -- the real-device coverage bug this
+     was removed for only happens on mobile/tablet WebKit. */
+  .fireworks-canvas .q5Canvas,
+  .fireworks-canvas canvas {
+    background: #1e1e1f !important;
   }
 }

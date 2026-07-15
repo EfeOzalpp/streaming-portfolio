@@ -8,6 +8,8 @@ import {
   getViewportBand,
 } from './layout';
 
+const FIREWORKS_BACKGROUND = '#1e1e1f';
+
 function getBlinkingParticleSpeed(p, size) {
   if (size >= 1 && size < 2) return p.random(0.5, 2.7);
   if (size >= 2 && size < 3) return p.random(2.5, 4.7);
@@ -47,12 +49,26 @@ export function createFireworksSketch({
   latestItems,
   latestColorMapping,
   isRealMobileRef,
+  canvasRef,
 }) {
   return (p) => {
+    // Size the canvas to its actual container, not the full browser window --
+    // in the embedded/shadow context the container is the small device-mockup
+    // frame, not the page viewport, so windowWidth/windowHeight would give the
+    // canvas a mismatched aspect ratio and CSS (width/height:100%) would then
+    // stretch the raster to fit, distorting it.
+    const getContainerSize = () => {
+      const el = canvasRef?.current;
+      return {
+        w: el?.clientWidth || p.windowWidth,
+        h: el?.clientHeight || p.windowHeight,
+      };
+    };
+
     let fireworks = fireworksRef.current;
     let lastFireworkTime = 0;
     let fireworkToggle = true;
-    let nextFireworkDelay = p.random(8000, 12000);
+    let nextFireworkDelay = p.random(5300, 8000);
 
     class Particle {
       constructor(x, y, c, firework, size, type, hasTrail = false) {
@@ -287,17 +303,24 @@ export function createFireworksSketch({
     }
 
     p.setup = () => {
-      p.createCanvas(p.windowWidth, p.windowHeight);
+      const { w, h } = getContainerSize();
+      p.createCanvas(w, h);
       addNewFirework(Math.random() < 0.65 ? 'BLINKING' : 'PROJECTILE');
       lastFireworkTime = p.millis();
       hiddenDurationRef.current = 0;
     };
 
     p.draw = () => {
-      if (isRealMobileRef.current) {
+      // Opaque p.background() painted into the canvas's own pixels every
+      // frame is what was covering the title/nav on real mobile/tablet
+      // WebKit (see shadowObserver-adjacent fix history). Desktop never had
+      // that bug and wants the solid backdrop, so only go transparent on
+      // compact viewports; trails are handled explicitly per-particle either
+      // way, so this doesn't change the visual effect itself.
+      if (window.innerWidth <= 1024) {
         p.clear();
       } else {
-        p.background('#1e1f22');
+        p.background(FIREWORKS_BACKGROUND);
       }
 
       if (!fireworksEnabledRef.current) {
@@ -320,12 +343,22 @@ export function createFireworksSketch({
         addNewFirework(fireworkToggle ? 'BLINKING' : 'PROJECTILE');
         fireworkToggle = !fireworkToggle;
         lastFireworkTime = adjustedTime;
-        nextFireworkDelay = p.random(10000, 20000);
+        nextFireworkDelay = p.random(6700, 13300);
       }
     };
 
     p.windowResized = () => {
-      p.resizeCanvas(p.windowWidth, p.windowHeight);
+      const { w, h } = getContainerSize();
+      const widthChanged = Math.abs(w - p.width) > 2;
+      const heightShrankModestly = p.height - h > 0 && p.height - h < 120;
+      // Mobile browsers commonly fire a resize shortly after initial load as
+      // the URL bar/toolbar chrome collapses, shrinking window.innerHeight by
+      // a modest amount with no width change and no real layout shift.
+      // resizeCanvas() resets the canvas, which kills whatever firework was
+      // mid-flight -- only actually resize on a real width change or a large
+      // height change (genuine orientation/layout shift), not this.
+      if (!widthChanged && heightShrankModestly) return;
+      p.resizeCanvas(w, h);
     };
   };
 }

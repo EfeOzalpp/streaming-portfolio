@@ -39,6 +39,7 @@ const FireworksDisplay = ({ colorMapping = {}, items = [], onToggleFireworks }) 
       latestItems,
       latestColorMapping,
       isRealMobileRef,
+      canvasRef,
     });
 
     p5InstanceRef.current = new q5(sketch, canvasRef.current);

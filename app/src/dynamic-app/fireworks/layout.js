@@ -4,6 +4,20 @@ export function getViewportBand(windowWidth) {
   return 'desktop';
 }
 
+// Picks uniformly from [min, bandStart] U [bandEnd, max], skipping the
+// forbidden middle band entirely -- weighted by each side's width so the
+// distribution stays even across the allowed area even if the two zones
+// end up different sizes (e.g. an off-center forbidden band).
+function randomOutsideBand(p, min, max, bandStart, bandEnd) {
+  const leftWidth = Math.max(0, bandStart - min);
+  const rightWidth = Math.max(0, max - bandEnd);
+  const total = leftWidth + rightWidth;
+  if (total <= 0) return p.random(min, max);
+
+  const pick = p.random(0, total);
+  return pick < leftWidth ? min + pick : bandEnd + (pick - leftWidth);
+}
+
 export function getExplosionTarget(p, band) {
   if (band === 'mobile') {
     return {
@@ -14,14 +28,14 @@ export function getExplosionTarget(p, band) {
 
   if (band === 'tablet') {
     return {
-      x: p.random(p.width * 0.65, p.width * 0.9),
-      y: p.random(p.height * 0.05, p.height * 0.3),
+      x: p.random(p.width * 0.5, p.width * 0.9),
+      y: p.random(p.height * 0.15, p.height * 0.65),
     };
   }
 
   return {
-    x: p.random(p.width * 0.4, p.width * 0.6),
-    y: p.random(p.height * 0.1, p.height * 0.3),
+    x: randomOutsideBand(p, p.width * 0, p.width * 1, p.width * 0.4, p.width * 0.6),
+    y: p.random(p.height * 0.1, p.height * 0.2),
   };
 }
 
