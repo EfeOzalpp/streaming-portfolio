@@ -1,5 +1,5 @@
 // src/state/providers/shadow-root-context.tsx
-import React, { createContext, useContext, useRef, ReactNode } from 'react';
+import { createContext, useContext, useRef, ReactNode } from 'react';
 
 type ShadowRootFn = () => ShadowRoot | null;
 type StyleSheetRaw = string;
@@ -102,7 +102,7 @@ export function ShadowRootProvider({
     if (hasConstructedSheets) {
       let sheet = sheetCacheRef.current.get(id);
       if (!sheet) {
-        sheet = new (CSSStyleSheet as any)();
+        sheet = new CSSStyleSheet();
         sheet.replaceSync(css);
         sheetCacheRef.current.set(id, sheet);
       }

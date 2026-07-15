@@ -32,7 +32,7 @@ export const useStyleInjection = (css: string, id: string) => {
     }
 
     const shadowRoot = getShadowRoot?.();
-    const isInShadow = shadowRoot && shadowRoot !== document;
+    const isInShadow = !!shadowRoot;
 
     if (isInShadow && injectStyle) {
       // Shadow DOM dedupe by ID

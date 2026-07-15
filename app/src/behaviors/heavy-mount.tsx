@@ -111,7 +111,7 @@ export default function HeavyMount({
     }
     mountedRef.current = true;
     const p = ensurePreloaded();
-    setComp(prev => prev ?? (lazy(() => p) as unknown as ComponentType));
+    setComp((prev: ComponentType | null) => prev ?? (lazy(() => p) as unknown as ComponentType));
     setIsMounted(true);
     // next frame -> allow CSS transition
     requestAnimationFrame(() => setIsVisible(true));

@@ -18,7 +18,7 @@ import {
 import { IMAGE_PRESET, type ImagePreset } from './media-presets';
 
 function useNearViewport<T extends Element>(
-  ref: React.RefObject<T>,
+  ref: React.RefObject<T | null>,
   { rootMargin = '900px 0px', threshold = 0, once = true } = {}
 ) {
   const [near, setNear] = useState(false);
@@ -178,7 +178,7 @@ const MediaLoader = ({
   // If already cached, skip fade-in
   useEffect(() => {
     if (type === 'image' && imgRef.current?.complete) setLoaded(true);
-    if (type === 'video' && videoRef.current?.readyState >= 2) setLoaded(true);
+    if (type === 'video' && (videoRef.current?.readyState ?? 0) >= 2) setLoaded(true);
   }, [type]);
 
   // Identify "video object" shapes, etc.

@@ -107,8 +107,8 @@ function primeSafariVideo(video: HTMLVideoElement) {
 }
 
 export const useVideoVisibility = (
-  videoRef: React.RefObject<HTMLVideoElement> | null,
-  containerRef: React.RefObject<HTMLElement> | null,
+  videoRef: React.RefObject<HTMLVideoElement | null> | null,
+  containerRef: React.RefObject<HTMLElement | null> | null,
   threshold: number = 0.4,
   enabled: boolean = true
 ) => {

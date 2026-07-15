@@ -6,9 +6,8 @@ type TooltipInfo = { tags: string[]; backgroundColor: string };
 const tooltipDataCache: Record<string, TooltipInfo> = {};
 
 const shared = [
-  'Representative media payload',
-  'Used to benchmark image',
-  'and video loading behavior.',
+  'Media payload used to benchmark',
+  'image and video loading behavior.',
 ];
 
 const sharedEntries = Object.fromEntries(
@@ -18,7 +17,7 @@ const sharedEntries = Object.fromEntries(
 const LOCAL_FALLBACK_TAGS: Record<string, string[]> = {
   'block-g': ['UI State Management', 'Touch & Mouse Interaction', 'Backend Score Persistence'],
   dynamic: ['Microfrontend Architecture', 'Scoped Component Rendering', 'Scoped-CSS-styles'],
-  'agentic-tools': ['Claude AI Integration', 'SSE Streaming', 'Agentic Job Search'],
+  'query-searcher': ['Claude AI Integration', 'SSE Streaming', 'Keyword Expansion'],
   ...sharedEntries,
 };
 
@@ -28,7 +27,7 @@ const TITLE_BY_KEY: Record<string, string> = {
   'data-viz': 'Data Visualization',
   'block-g': 'Evade the Rock',
   dynamic: 'Dynamic App',
-  'agentic-tools': 'Agentic Tools',
+  'query-searcher': 'Query Searcher',
 };
 
 function bgForKey(key: string) {

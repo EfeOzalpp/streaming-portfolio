@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import loadable from '@loadable/component';
 import ScopedShell from './scopedShell';
-import { loadLottie } from './behaviors/load-lottie.ts'; 
+import { loadLottie } from './behaviors/load-lottie.ts';
+import Frontpage from './frontPage.jsx';
 
-const Frontpage = loadable(() => import('./frontPage.jsx'));
 const DynamicThemeRoute = loadable(() => import('./dynamic-app/dynamic-app-ssr/dynamic-theme.route.tsx'));
 
 export default function App() {

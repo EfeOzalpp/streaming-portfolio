@@ -37,10 +37,6 @@ const queries: Record<string, string> = {
     alt,
     image{ asset->{ url } }
   }`,
-  'kirkland': `*[_type=="mediaBlock" && slug.current=="kirkland"][0]{
-    mediaOne{ alt, image, video{ "webmUrl": webm.asset->url, "mp4Url": mp4.asset->url, poster } },
-    mediaTwo{ alt, image, video{ "webmUrl": webm.asset->url, "mp4Url": mp4.asset->url, poster } }
-  }`,
 };
 
 export async function getProjectData<T>(key: string): Promise<T | null> {

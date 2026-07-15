@@ -11,6 +11,9 @@ declare module "*.svg" { const url: string; export default url; }
 declare module "*.css?raw" { const css: string; export default css; }
 declare module "*?raw" { const content: string; export default content; }
 
+// @loadable/component ships no bundled types and no @types package exists
+declare module "@loadable/component";
+
 // (keep your Window augmentation if you need it)
 declare global {
   interface Window {
