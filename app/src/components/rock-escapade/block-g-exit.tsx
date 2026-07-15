@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const ExitButton = ({ onExit }) => {
+const ExitButton = ({ onExit }: { onExit?: () => void }) => {
   const [visible, setVisible] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
 

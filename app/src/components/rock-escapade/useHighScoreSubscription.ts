@@ -10,7 +10,7 @@ export const useHighScoreSubscription = () => {
 
   useEffect(() => {
     // initial fetch
-    client.fetch<Doc | null>(QUERY).then((doc) => {
+    client.fetch<Doc | null>(QUERY).then((doc: Doc | null) => {
       if (typeof doc?.score === 'number') setHighScore(doc.score)
     })
 

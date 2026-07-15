@@ -897,11 +897,13 @@ export default function GameCanvas({
             try { instAny._pointerCleanup(); } catch {}
           }
           if (io) io.disconnect();
-          if (onResize) window.removeEventListener('resize', onResize);
           document.removeEventListener('fullscreenchange', onFs);
           ro?.disconnect();
-          vv?.removeEventListener('resize', onResize);
-          vv?.removeEventListener('scroll', onResize);
+          if (onResize) {
+            window.removeEventListener('resize', onResize);
+            vv?.removeEventListener('resize', onResize);
+            vv?.removeEventListener('scroll', onResize);
+          }
           if (q5Ref.current?.remove) q5Ref.current.remove();
           q5Ref.current = null;
           el.replaceChildren();
