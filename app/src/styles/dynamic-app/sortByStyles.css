@@ -103,7 +103,7 @@ div.option.selected { padding-top: 12px; padding-bottom: 12px; }
 #shadow-dynamic-app .sort-by-divider { padding-left: 18%; padding-right: calc(18% + 1.6rem); }
 
 #sort { width: 100%; height: 14.4vw; border-radius: 1px; padding-left: 16px; }
-.sort-by-container { display: flex; z-index: 10; position: relative; flex-direction: column; padding-right: 0px; }
+.sort-by-container { display: flex; z-index: 10; position: relative; flex-direction: column; }
 #shadow-dynamic-app .sort-by-container { width: 210px; }
 
 .sort-container2 { width: clamp(166px, 3.6em, 240px); align-self: flex-start; }
