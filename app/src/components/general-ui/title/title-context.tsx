@@ -1,0 +1,18 @@
+// src/components/general-ui/title/title-context.tsx
+import React, { createContext, useContext, useState, type ReactNode } from 'react';
+
+export const TitleContext = createContext<{
+  activeTitle: string;
+  setActiveTitle: (t: string) => void;
+}>({ activeTitle: '', setActiveTitle: () => {} });
+
+export const TitleProvider = ({ children }: { children: ReactNode }) => {
+  const [activeTitle, setActiveTitle] = useState('');
+  return (
+    <TitleContext.Provider value={{ activeTitle, setActiveTitle }}>
+      {children}
+    </TitleContext.Provider>
+  );
+};
+
+export const useActiveTitle = () => useContext(TitleContext);
