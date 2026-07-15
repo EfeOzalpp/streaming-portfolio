@@ -1,7 +1,7 @@
 // src/ssr/route-types.ts
 import type { ReactNode } from 'react';
 
-export type RouteKey = 'dynamic-theme';
+type RouteKey = 'dynamic-theme';
 
 export type RouteSsrDescriptor =
   | {

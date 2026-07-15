@@ -1,59 +1,4 @@
 // src/server/html.ts
-import fs from 'node:fs';
-import path from 'node:path';
-
-function readTextSafe(p: string) {
-  try { return fs.readFileSync(p, 'utf8'); } catch { return ''; }
-}
-
-function readFirst(paths: string[]): string {
-  for (const p of paths) {
-    const txt = readTextSafe(p);
-    if (txt) return txt;
-  }
-  return '';
-}
-
-/** Prefix helper */
-export function prefixCss(css: string, prefix = '#main-shell') {
-  // 1) Recurse into @media blocks and prefix their inner rules only.
-  css = css.replace(/@media[^{]+\{([\s\S]*?)\}/g, (full, inner) => {
-    const prefixedInner = prefixCss(inner, prefix);
-    return full.replace(inner, prefixedInner);
-  });
-
-  // 2) Remove block comments so a comment before @media isn't misread as a selector token.
-  //    (Safe for critical inline CSS; you weren’t using comments there for logic.)
-  css = css.replace(/\/\*[\s\S]*?\*\//g, '');
-
-  // 3) Prefix normal rule selectors (skip at-rules and special roots).
-  return css.replace(/(^|})\s*([^@}{][^{}]*)\{/g, (m, brace, selectorList) => {
-    const selectors = selectorList
-      .split(',')
-      .map(s => s.trim())
-      .filter(Boolean);
-
-    const safeSelectors = selectors.map(sel => {
-      // leave these alone
-      if (
-        sel.startsWith('html') ||
-        sel.startsWith('body') ||
-        sel.startsWith(':root') ||
-        sel.includes('#dynamic-theme') ||
-        sel.includes('#shadow-dynamic-app') ||
-        sel.includes('::slotted') ||
-        sel.startsWith('@') ||                 // any at-rule safety
-        sel === 'from' || sel === 'to' || /\d+%$/.test(sel) // keyframes stages
-      ) {
-        return sel;
-      }
-      return `${prefix} ${sel}`;
-    }).join(', ');
-
-    return `${brace} ${safeSelectors}{`;
-  });
-}
-
 
 /** Build limited font preloads from the blocks actually emitted */
 function buildFontPreloads(fontCssBlocks: string[], limit = 4): string[] {
@@ -98,27 +43,19 @@ export function buildHtmlOpen(opts: {
   };
   extractorLinkTags: string;
   extractorStyleTags: string;
-  emotionStyleTags: string;
   extraCriticalCss?: string;
+  appCriticalCss?: string;
+  dynamicThemeInlineCss?: string;
   injectBeforeRoot?: string;  // <-- added for dynamic snapshot HTML
 }) {
   const {
     IS_DEV, routePath, iconSvg, iconIco, preloadLinks,
     fontsCss, extractorLinkTags, extractorStyleTags,
-    emotionStyleTags, extraCriticalCss = '',
+    extraCriticalCss = '',
+    appCriticalCss = '',
+    dynamicThemeInlineCss = '',
     injectBeforeRoot = '',
   } = opts;
-
-  const ROOT = process.cwd();
-  const cssTheme      = readTextSafe(path.resolve(ROOT, 'src/styles/font+theme.css'));
-  const cssBlocks     = readTextSafe(path.resolve(ROOT, 'src/styles/general-block.css'));
-  const cssAgenticTools = readTextSafe(path.resolve(ROOT, 'src/styles/block-type-t.css'));
-
-  // App-level critical CSS only for landing routes
-  let appCriticalCss = '';
-  if (routePath === '/' || routePath === '/home') {
-    appCriticalCss = prefixCss(cssTheme) + '\n' + prefixCss(cssBlocks) + '\n' + prefixCss(cssAgenticTools);
-  }
 
   const projectCriticalCss = extraCriticalCss ? '\n' + extraCriticalCss : '';
 
@@ -141,34 +78,10 @@ export function buildHtmlOpen(opts: {
     ? `<link rel="apple-touch-icon" sizes="180x180" href="/freshmedia-icon.png${v}">`
     : `<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png${v}">`;
 
-  // Inline Dynamic Theme UIcards.css only on /dynamic-theme (no prefix)
-  let dynamicThemeInlineCss = '';
-  if (isDynamicTheme) {
-    const uiCardsCss = readFirst([
-      path.resolve(ROOT, 'src/dynamic-app/styles/UIcards.css'),
-      path.resolve(ROOT, 'src/styles/dynamic-app/UIcards.css'),
-    ]);
-
-    const sortByCss = readFirst([
-      path.resolve(ROOT, 'src/dynamic-app/styles/sortByStyles.css'),
-      path.resolve(ROOT, 'src/styles/dynamic-app/sortByStyles.css'),
-    ]);
-
-    const indexCss = readFirst([
-      path.resolve(ROOT, 'src/dynamic-app/styles/index.css'),
-      path.resolve(ROOT, 'src/styles/dynamic-app/index.css'),
-    ]);
-
-    if (uiCardsCss) {
-      dynamicThemeInlineCss += `<style id="critical-dynamic-ui-cards">${uiCardsCss}</style>`;
-    }
-    if (sortByCss) {
-      dynamicThemeInlineCss += `<style id="critical-dynamic-sortby">${sortByCss}</style>`;
-    }
-    if (indexCss) {
-      dynamicThemeInlineCss += `<style id="critical-dynamic-index">${indexCss}</style>`;
-    }
-  }
+  // Dynamic Theme's own base styles, inlined unprefixed (this route isn't wrapped in #main-shell)
+  const dynamicThemeInlineStyleTag = dynamicThemeInlineCss
+    ? `<style id="critical-dynamic-inline">${dynamicThemeInlineCss}</style>`
+    : '';
 
   // FONTS: use whatever was passed (index.jsx trims Poppins/Epilogue for dynamic)
   const fontBlocks = [
@@ -215,9 +128,8 @@ ${extractorStyleTags}
 ${(appCriticalCss || projectCriticalCss)
   ? `<style id="critical-inline-app-css">${appCriticalCss}${projectCriticalCss}</style>`
   : ''}
-${emotionStyleTags}
 
-${dynamicThemeInlineCss}
+${dynamicThemeInlineStyleTag}
 ${routeHead}
 </head>
 <body>

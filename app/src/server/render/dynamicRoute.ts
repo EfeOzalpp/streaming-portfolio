@@ -11,6 +11,7 @@ export interface DynamicRouteData {
   dynamicSnapshotHtml: string;
   dynamicPreloadLinks: string[];
   extraCriticalCss: string;
+  dynamicThemeInlineCss: string;
   fontsCss: { rubikCss: string; orbitronCss: string; poppinsCss: string; epilogueCss: string };
 }
 
@@ -53,5 +54,31 @@ export async function prepareDynamicRender(querySeed?: number): Promise<DynamicR
     }
   }
 
-  return { dynamicPreload, dynamicSeed, dynamicSnapshotHtml, dynamicPreloadLinks, extraCriticalCss, fontsCss };
+  // This route isn't wrapped in #main-shell, so inline these fully unprefixed
+  let dynamicThemeInlineCss = '';
+  try {
+    dynamicThemeInlineCss = await buildCriticalCss(
+      [
+        'src/styles/dynamic-app/UIcards.css',
+        'src/styles/dynamic-app/sortByStyles.css',
+        'src/styles/dynamic-app/index.css',
+        'src/styles/dynamic-app/title.css',
+        'src/styles/dynamic-app/navigation.css',
+        'src/styles/dynamic-app/misc.css',
+      ],
+      { allow: () => true }
+    );
+  } catch {
+    // silent — non-critical CSS failure shouldn't break the response
+  }
+
+  return {
+    dynamicPreload,
+    dynamicSeed,
+    dynamicSnapshotHtml,
+    dynamicPreloadLinks,
+    extraCriticalCss,
+    dynamicThemeInlineCss,
+    fontsCss,
+  };
 }

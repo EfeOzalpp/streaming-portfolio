@@ -5,8 +5,7 @@ import { rotarySSR }        from './content/rotary.ssr';
 import { datavizSSR }       from './content/dataviz.ssr';
 import { dynamicSSR }       from './content/dynamic.ssr';
 import { gameSSR }          from './content/game.ssr';
-import { agenticToolsSSR }  from './content/agentic-tools.ssr';
-import { kirklandSSR }      from './content/kirkland.ssr';
+import { querySearcherSSR } from './content/query-searcher.ssr';
 
 export const ssrRegistry: SsrRegistry = {
   scoop:           scoopSSR,
@@ -14,6 +13,5 @@ export const ssrRegistry: SsrRegistry = {
   dataviz:         datavizSSR,
   dynamic:         dynamicSSR,
   game:            gameSSR,
-  'agentic-tools': agenticToolsSSR,
-  kirkland:        kirklandSSR,
+  'query-searcher': querySearcherSSR,
 };

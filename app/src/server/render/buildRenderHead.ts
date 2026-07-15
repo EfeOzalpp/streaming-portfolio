@@ -15,13 +15,12 @@ export interface BuildRenderHeadOpts {
   routePath: string;
   ASSET_MANIFEST: string;
   extractor: ExtractorLike;
-  emotionStyleTags: string;
   isDynamicTheme: boolean;
   routeData: StandardRouteData | DynamicRouteData;
 }
 
 export function buildRenderHead(opts: BuildRenderHeadOpts): { htmlOpen: string; htmlClose: string } {
-  const { IS_DEV, routePath, ASSET_MANIFEST, extractor, emotionStyleTags, isDynamicTheme, routeData } = opts;
+  const { IS_DEV, routePath, ASSET_MANIFEST, extractor, isDynamicTheme, routeData } = opts;
 
   const manifest = loadManifestIfAny(IS_DEV, ASSET_MANIFEST);
   const iconSvg = '/freshmedia-icon.svg';
@@ -39,6 +38,8 @@ export function buildRenderHead(opts: BuildRenderHeadOpts): { htmlOpen: string; 
 
   let preloadLinks: string[];
   let extraCriticalCss: string;
+  let appCriticalCss = '';
+  let dynamicThemeInlineCss = '';
   let fontsCss: { rubikCss: string; orbitronCss: string; poppinsCss: string; epilogueCss: string };
   let ssrPayload: any;
   let dynamicBootstrap = '';
@@ -48,10 +49,11 @@ export function buildRenderHead(opts: BuildRenderHeadOpts): { htmlOpen: string; 
     const d = routeData as DynamicRouteData;
     preloadLinks = d.dynamicPreloadLinks;
     extraCriticalCss = d.extraCriticalCss;
+    dynamicThemeInlineCss = d.dynamicThemeInlineCss;
     fontsCss = d.fontsCss;
     ssrPayload = { seed: null, preloaded: {}, preloadLinks: [] };
     injectBeforeRoot = d.dynamicSnapshotHtml;
-    dynamicBootstrap = `<script>window.__DYNAMIC_PRELOAD__=${JSON.stringify({
+    dynamicBootstrap = `<script>window.__DYNAMIC_THEME_PRELOAD__=${JSON.stringify({
       ...(d.dynamicPreload || {}),
       seed: d.dynamicSeed,
     }).replace(/</g, '\\u003c')}</script>`;
@@ -59,6 +61,7 @@ export function buildRenderHead(opts: BuildRenderHeadOpts): { htmlOpen: string; 
     const s = routeData as StandardRouteData;
     preloadLinks = s.preloadLinks;
     extraCriticalCss = s.extraCriticalCss;
+    appCriticalCss = s.appCriticalCss;
     fontsCss = s.fontsCss;
     ssrPayload = s.ssrPayload;
   }
@@ -72,8 +75,9 @@ export function buildRenderHead(opts: BuildRenderHeadOpts): { htmlOpen: string; 
     fontsCss,
     extractorLinkTags,
     extractorStyleTags,
-    emotionStyleTags,
     extraCriticalCss,
+    appCriticalCss,
+    dynamicThemeInlineCss,
     injectBeforeRoot,
   });
 

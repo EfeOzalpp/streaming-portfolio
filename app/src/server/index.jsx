@@ -2,18 +2,15 @@
 import 'dotenv/config';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import React from 'react';
 import express from 'express';
 import compression from 'compression';
 
 import { StaticRouter } from 'react-router';
-import { renderToString } from 'react-dom/server';
 
 import { ChunkExtractor } from '@loadable/server';
 import { resolveStatsFile } from './assets';
-
-import { CacheProvider } from '@emotion/react';
-import { createEmotion } from './emotion';
 
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
@@ -44,11 +41,26 @@ app.use(
 const IS_DEV = process.env.NODE_ENV !== 'production';
 
 const PORT = Number(process.env.PORT) || 3001;
-const HOST = process.env.HOST || (IS_DEV ? '192.168.29.199' : '0.0.0.0');
+const HOST = process.env.HOST || '0.0.0.0';
 
 const DEV_CLIENT_PORT = Number(process.env.DEV_CLIENT_PORT) || 3000;
-const DEV_HOST_FOR_ASSETS = process.env.DEV_HOST_FOR_ASSETS || HOST;
+// Proxy target must be a connectable address, not a bind-all address like 0.0.0.0.
+// Used server-side only (proxying /static + /sockjs-node to the CRA dev server
+// running on the same machine), so 'localhost' is correct here regardless of
+// what host the browser used to reach us.
+const DEV_HOST_FOR_ASSETS = process.env.DEV_HOST_FOR_ASSETS || 'localhost';
 const DEV_ASSETS_ORIGIN = `http://${DEV_HOST_FOR_ASSETS}:${DEV_CLIENT_PORT}/`;
+
+// Origin baked into the <script>/<link> tags sent to the BROWSER. This must
+// match whatever host the browser actually used (e.g. a LAN IP from a phone/
+// tablet on the same wifi) -- 'localhost' only resolves on the dev machine
+// itself, so a LAN client would silently fail to fetch the bundle and never
+// hydrate. Falls back to req.hostname per-request unless explicitly pinned
+// via DEV_HOST_FOR_ASSETS.
+function getDevAssetsOriginForRequest(req) {
+  const host = process.env.DEV_HOST_FOR_ASSETS || req.hostname || 'localhost';
+  return `http://${host}:${DEV_CLIENT_PORT}/`;
+}
 
 const { BUILD_DIR, STATS_FILE, ASSET_MANIFEST } = resolveStatsFile();
 
@@ -96,7 +108,7 @@ app.get('/*', async (req, res) => {
     }
   } else {
     const { seed } = getEphemeralSeed();
-    routeData = await prepareStandardRoute(seed);
+    routeData = await prepareStandardRoute(seed, req.path);
   }
 
   // ssrPayload drives the SsrDataProvider in the React tree
@@ -106,33 +118,23 @@ app.get('/*', async (req, res) => {
 
   const extractor = new ChunkExtractor({
     statsFile: STATS_FILE,
-    publicPath: IS_DEV ? DEV_ASSETS_ORIGIN : '/',
+    publicPath: IS_DEV ? getDevAssetsOriginForRequest(req) : '/',
   });
-
-  const { cache, extractCriticalToChunks, constructStyleTagsFromChunks } = createEmotion();
 
   // JSX tree stays here: only this file uses JSX syntax
   const jsx = extractor.collectChunks(
-    <CacheProvider value={cache}>
-      <SsrDataProvider value={ssrPayload}>
-        <StaticRouter location={req.url}>
-          <App />
-        </StaticRouter>
-      </SsrDataProvider>
-    </CacheProvider>
+    <SsrDataProvider value={ssrPayload}>
+      <StaticRouter location={req.url}>
+        <App />
+      </StaticRouter>
+    </SsrDataProvider>
   );
-
-  // Emotion critical CSS (prepass)
-  const prerender = renderToString(jsx);
-  const emotionChunks = extractCriticalToChunks(prerender);
-  const emotionStyleTags = constructStyleTagsFromChunks(emotionChunks);
 
   const { htmlOpen, htmlClose } = buildRenderHead({
     IS_DEV,
     routePath: req.path,
     ASSET_MANIFEST,
     extractor,
-    emotionStyleTags,
     isDynamicTheme,
     routeData,
   });
@@ -140,6 +142,24 @@ app.get('/*', async (req, res) => {
   pipeReactStream({ jsx, htmlOpen, htmlClose, req, res, IS_DEV });
 });
 
+function getLanAddress() {
+  const nets = os.networkInterfaces();
+  for (const ifaceList of Object.values(nets)) {
+    for (const iface of ifaceList || []) {
+      if (iface.family === 'IPv4' && !iface.internal) return iface.address;
+    }
+  }
+  return null;
+}
+
 app.listen(PORT, HOST, () => {
-  console.log(`SSR server running at http://${HOST}:${PORT} (${IS_DEV ? 'development' : 'production'})`);
+  const mode = IS_DEV ? 'development' : 'production';
+  if (HOST === '0.0.0.0') {
+    const lan = getLanAddress();
+    console.log(`SSR server running (${mode})`);
+    console.log(`  Local:   http://localhost:${PORT}`);
+    if (lan) console.log(`  Network: http://${lan}:${PORT}`);
+  } else {
+    console.log(`SSR server running at http://${HOST}:${PORT} (${mode})`);
+  }
 });

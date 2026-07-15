@@ -90,18 +90,12 @@ module.exports = function override(config, env) {
       console.warn('Could not find base CSS rule to patch postcss-loader');
     }
 
-    // 3) Add Emotion + Loadable babel plugins to client build (you had this)
+    // 3) Add Loadable babel plugin to client build (you had this)
     const babelRules = oneOfRule.oneOf.filter(
       (rule) => rule.loader && rule.loader.includes('babel-loader') && rule.options
     );
     for (const br of babelRules) {
       br.options.plugins = br.options.plugins || [];
-
-      const hasEmotion = br.options.plugins.some((p) => {
-        const name = Array.isArray(p) ? p[0] : p;
-        return typeof name === 'string' && name.includes('@emotion/babel-plugin');
-      });
-      if (!hasEmotion) br.options.plugins.push(require.resolve('@emotion/babel-plugin'));
 
       const hasLoadable = br.options.plugins.some((p) => {
         const name = Array.isArray(p) ? p[0] : p;
@@ -126,6 +120,25 @@ module.exports = function override(config, env) {
       }
       return r;
     });
+  }
+
+  // The real source-map-loader rule lives outside `oneOf` (a top-level
+  // `enforce: 'pre'` rule), so it needs patching separately from the block above.
+  const sourceMapRule = config.module.rules.find(
+    (rule) => rule && rule.enforce === 'pre' && rule.loader && rule.loader.includes('source-map-loader')
+  );
+  if (sourceMapRule) {
+    const existingExclude = sourceMapRule.exclude
+      ? [].concat(sourceMapRule.exclude)
+      : [];
+    sourceMapRule.exclude = [
+      ...existingExclude,
+      /node_modules[\\/]@tootallnate[\\/]once/,
+      /node_modules[\\/]http-proxy-agent/,
+      /node_modules[\\/]https-proxy-agent/,
+      /node_modules[\\/]saxes/,
+      /node_modules[\\/]xmlchars/,
+    ];
   }
 
   // --- Emit loadable-stats.json for SSR chunk discovery (you had this)

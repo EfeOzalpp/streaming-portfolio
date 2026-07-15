@@ -20,7 +20,6 @@ module.exports = (_env, argv) => {
       nodeExternals({
         allowlist: [
           /^@loadable\//,
-          /^@emotion\//,
           /^react-router-dom$/,
           /^react-router$/,
         ],
@@ -54,12 +53,11 @@ module.exports = (_env, argv) => {
               configFile: false,
                 presets: [
                   [require.resolve('@babel/preset-env'), { targets: { node: 'current' } }],
-                  [require.resolve('@babel/preset-react'), { runtime: 'automatic', importSource: '@emotion/react' }],
+                  [require.resolve('@babel/preset-react'), { runtime: 'automatic' }],
                   require.resolve('@babel/preset-typescript'),
                 ],
               plugins: [
                 require.resolve('@loadable/babel-plugin'),
-                require.resolve('@emotion/babel-plugin'),
               ],
             },
           },
