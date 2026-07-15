@@ -1,4 +1,4 @@
-// src/components/dynamic-app/shadow-entry.tsx
+// src/components/shadow-dynamic-app/shadowEntry.tsx
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import DynamicAppInbound from '../../dynamic-app/dynamic-app-shadow.jsx';

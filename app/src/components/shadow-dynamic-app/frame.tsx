@@ -1,4 +1,4 @@
-// src/components/dynamic-app/frame.tsx
+// src/components/shadow-dynamic-app/frame.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import client from '../../services/sanity';
 import { useDynamicOverlay } from './useDynamicOverlay';
@@ -45,20 +45,21 @@ const Frame: React.FC = () => {
 
   useEffect(() => {
     if (Object.keys(svgMap).length > 0) return;
+    type SvgAssetDoc = { title: string; file?: { asset?: { url?: string } } };
     client
-      .fetch(
+      .fetch<SvgAssetDoc[]>(
         `*[_type == "svgAsset" && title in ["Laptop", "Tablet", "Phone"]]{
           title, file { asset->{url} }
         }`
       )
-      .then((results: any[]) => {
+      .then((results) => {
         const map: Record<string, string> = {};
-        results.forEach((r: any) => {
-          map[r.title.toLowerCase()] = r.file?.asset?.url;
+        results.forEach((r) => {
+          map[r.title.toLowerCase()] = r.file?.asset?.url ?? '';
         });
         setSvgMap(map);
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         setFetchErr('assets-unavailable');
         console.warn('[Frame] fetch SVG failed:', err);
       });

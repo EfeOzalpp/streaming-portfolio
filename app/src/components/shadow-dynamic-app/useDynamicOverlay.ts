@@ -1,7 +1,7 @@
-// src/components/dynamic-app/useDynamicOverlay.ts
+// src/components/shadow-dynamic-app/useDynamicOverlay.ts
 import { useEffect, useState } from 'react';
 
-export function useDynamicOverlay(frameRef: React.RefObject<HTMLElement>) {
+export function useDynamicOverlay(frameRef: React.RefObject<HTMLElement | null>) {
   const [style, setStyle] = useState<{
     width: number;
     heightSet1: number;
