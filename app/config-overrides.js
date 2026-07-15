@@ -26,6 +26,7 @@ module.exports = function override(config, env) {
       net: false,
       os: false,
       stream: false,
+      string_decoder: false,
       tls: false,
       url: false,
       util: false,
