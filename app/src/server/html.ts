@@ -20,7 +20,7 @@ function buildFontPreloads(fontCssBlocks: string[], limit = 4): string[] {
 export function buildRouteHead(routePath: string) {
   if (routePath.startsWith('/dynamic-theme')) {
     return `
-      <title>DMI - Dynamic Theme</title>
+      <title>DMI App</title>
       <meta name="description" content="Fresh Media is a Dynamic Media Institute at MassArt tradition.">
       <meta name="keywords" content="Innovation, Art, Technology, Science, Culture, Exhibition, Installation, Display, Projects">
       <meta name="theme-color" content="#1e1e1f">

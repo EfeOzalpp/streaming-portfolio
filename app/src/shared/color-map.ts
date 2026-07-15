@@ -31,7 +31,7 @@ export const projectColors: Record<string, ProjectColor> = {
     defaultAlpha: 0.3,
     themeColor: 'rgb(25, 25, 25)'
   },
-  'Dynamic App': {
+  'DMI App': {
     rgb: '140, 200, 255',
     tooltipAlpha: 0.6,
     defaultAlpha: 0.6,

@@ -26,7 +26,7 @@ const TITLE_BY_KEY: Record<string, string> = {
   'ice-scoop': 'Ice Cream Scoop',
   'data-viz': 'Data Visualization',
   'block-g': 'Evade the Rock',
-  dynamic: 'Dynamic App',
+  dynamic: 'DMI App',
   'query-searcher': 'Query Searcher',
 };
 

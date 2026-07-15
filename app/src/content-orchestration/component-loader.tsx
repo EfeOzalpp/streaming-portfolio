@@ -75,7 +75,7 @@ export const baseProjects: Project[] = [
   },
   {
     key: 'dynamic',
-    title: 'Dynamic App',
+    title: 'DMI App',
     isLink: true,
     lazyImport: () => toComponent(dynamicLoaders.frame()),
   },
