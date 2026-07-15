@@ -1,0 +1,40 @@
+/* Firework q5-canvas styles */
+
+.firework-divider { pointer-events: none; display: block; position: absolute; background-color: #1e1e1f; }
+#shadow-dynamic-app .firework-divider { top: 0; left: 0; width: 100%; z-index: 1; }
+.q5Canvas { z-index: 1 !important; position: relative; display: block; width: 100% !important; height: 100% !important; overflow: hidden; background: transparent !important; }
+
+#shadow-dynamic-app .firework-wrapper { position: relative; width: 100%; z-index: 0; background-color: transparent; height: 0px; }
+
+/* scaled slightly smaller for shadow app */
+
+/* ================= MOBILE ================= */
+@media screen and (max-width: 767px) {
+
+.firework-divider { margin-top: -3.6em; }
+
+#shadow-dynamic-app .firework-divider { background-color: transparent; }
+
+#shadow-dynamic-app .q5-normal { background-color: transparent !important; z-index: 2 !important; position: relative; }
+
+.q5Canvas { z-index: 1 !important; position: relative; }
+
+}
+
+/* ================= TABLET ================= */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+
+.firework-divider { margin-top: -6.8em; }
+
+#shadow-dynamic-app .firework-divider { height: 60em; }
+
+}
+
+/* ================= DESKTOP ================= */
+@media screen and (min-width: 1025px) {
+
+.firework-divider { margin-top: -6.8em; }
+
+#shadow-dynamic-app .firework-divider { height: 100dvh; }
+
+}

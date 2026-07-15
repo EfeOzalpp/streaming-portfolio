@@ -1,49 +1,84 @@
 /* src/styles/dynamic-app/title.css */
 
+/* General Styles for hero title */
+.moving-title.paused .moving-text-wrapper, .moving-title.paused #Layer_12 { animation-play-state: paused; }
 .moving-title { z-index: 6; }
-.static-color-title { display: flex; flex-wrap: wrap; justify-content: center; }
-.moving-letter, .moving-text-space { display: inline-block; }
+/* start/end both fully clipped by .moving-title's overflow:hidden, using
+   real measured px widths (set via JS ResizeObserver as --marquee-* custom
+   properties) so the loop reset is invisible at every breakpoint */
+@keyframes slide {
+  0% { transform: translateX(var(--marquee-container-w, 100%)); }
+  100% { transform: translateX(calc(-1 * var(--marquee-content-w, 100%))); }
+}
+@keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- Hover/shift hardening (applies to all breakpoints) --- */
+.logo-container { align-items: center; justify-content: center; flex: 0 0 auto; }
+.svg-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; line-height: 0; vertical-align: middle; transform: translateZ(0); will-change: transform; }
+.svg-icon > svg { display: block; width: 100%; height: 100%; }
+.logo-container, .svg-icon, .svg-icon * { pointer-events: none; }
+#Layer_12 { transform-origin: 50% 50%; }
 
 /* Hero title for mobile devices */
-@media screen and (max-width: 768px) {
-  .title-container { background-color: #1e1f22; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding-top: 1.6rem; }
-  .static-title { margin-bottom: 20px; padding-left: 1.6rem; padding-right: 0.8rem; z-index: 3; }
+@media screen and (max-width: 767px) {
+  .title-container { background-color: #1e1e1f; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding-top: 3.6em; }
+  #shadow-dynamic-app .title-container { padding-top: 0; }
+  .static-title { padding: 1.6em 2.2em 0; }
+  #shadow-dynamic-app .static-title { padding: 1.6em 2.2em 0; }
 
-  .title-with-icon { display: flex; align-items: center; justify-content: center; white-space: normal; text-align: center; }
-  .moving-title { position: relative; margin-top: -2.34rem; width: 100%; z-index: 2; }
-  .moving-title h1 { font-weight: 200 !important; letter-spacing: -1.8px; }
-  .moving-text-wrapper { display: flex; align-items: center; justify-content: center; line-height: 1.1; }
-  #shadow-dynamic-app .moving-title { margin-top: -2.4rem; }
+  /* Moving title styles */
+  .title-with-icon { display: flex; align-items: center; white-space: nowrap; }
+  .moving-title { position: relative; width: 100%; z-index: 2; overflow: hidden; }
+  .moving-text-wrapper { display: inline-flex; align-items: center; animation: slide var(--animation-speed, 24s) linear infinite; }
+  .logo-container .svg-icon { padding-right: 12px; }
+  #shadow-dynamic-app .logo-container .svg-icon { padding-right: 12px; }
+
+  /* SVG icon styles for rotation and size (stabilized) */
+  .logo-container { margin: 0 0.03em; }
+  .svg-icon { width: 1.1em; height: 1.1em; }
+  #Layer_12 { width: 100%; height: 100%; padding: 0; margin: 0; }
 }
 
 /* Hero title for tablet devices */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
-  .title-container { background-color: #1e1e1f; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding-top: 2.6rem; padding-bottom: 2.8rem; padding-left: 2.4rem; }
-  #shadow-dynamic-app .title-container { padding-top: 1.6rem; }
-  .static-title { margin-bottom: 20px; padding-left: 0rem; padding-right: 50%; z-index: 3; }
+  .static-title { position: relative; z-index: 3; padding: 4.8em 2.4em 1.6em; }
+  #shadow-dynamic-app .static-title { padding: 1.6em 2.4em 0.8em; }
 
-  .title-with-icon { display: flex; align-items: center; justify-content: center; white-space: normal; text-align: center; }
-  .moving-title { position: relative; margin-top: -2.3rem; width: 100%; z-index: 2; }
-  .moving-title h1 { font-weight: 200 !important; letter-spacing: -0.4px; }
-  .moving-text-wrapper { display: flex; align-items: center; justify-content: center; line-height: 1.1; }
+  /* Moving title styles */
+  .title-with-icon { display: flex; align-items: center; white-space: nowrap; }
+  .moving-title { position: relative; margin-top: -1.6em; width: 100%; z-index: 2; overflow: hidden; padding-bottom: 0.8em; }
+  .moving-title h1 { font-weight: 200; }
+  .moving-text-wrapper { display: inline-flex; align-items: center; animation: slide 22s linear infinite; }
+
+  /* SVG icon styles for rotation and size (stabilized) */
+  .logo-container { margin: 0 0.03em; }
+  .svg-icon { width: 1.1em; height: 1.1em; }
+  #Layer_12 { width: 100%; height: 100%; padding: 0; margin: 0; }
 }
 
 /* Hero title for desktop devices */
 @media screen and (min-width: 1025px) {
-  .title-container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin: 0 auto; position: relative; }
-  .static-title { z-index: 2; width: 50%; white-space: nowrap; text-align: center; }
-  #shadow-dynamic-app .static-title { width: auto !important; }
+  .title-container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin: 0 auto; margin-top: 4.8em; position: relative; }
+  #shadow-dynamic-app .title-container { margin-top: 0; }
+  .static-title { position: relative; z-index: 2; width: auto; white-space: nowrap; text-align: center; }
+  #shadow-dynamic-app .static-title { width: auto; }
 
-  .title-with-icon { display: flex; align-items: center; justify-content: center; white-space: normal; text-align: center; }
-  .moving-title { display: flex; justify-content: center; align-items: center; width: 66%; position: relative; margin-top: -1.2rem; }
+  /* Moving title styles */
+  .title-with-icon { display: flex; align-items: center; white-space: nowrap; }
+  .moving-title { display: flex; justify-content: flex-start; align-items: center; overflow: hidden; width: 60%; position: relative; margin-top: 1.2em; }
+
+  #shadow-dynamic-app .moving-title { margin-top: 1.2em; width: 60%; }
+  .moving-title::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; background: linear-gradient(to right, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 24%), linear-gradient(to left, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 24%); background-blend-mode: screen; }
+  #shadow-dynamic-app .moving-title::before { background: linear-gradient(to right, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 24%), linear-gradient(to left, rgba(30, 30, 31, 1) 0%, rgba(30, 30, 31, 0) 24%); }
 
   .moving-title h1 { font-weight: 200 !important; letter-spacing: 3.2px; }
-  .moving-text-wrapper { display: flex; align-items: center; justify-content: center; line-height: 1.1; }
+  .moving-text-wrapper { display: flex; white-space: nowrap; align-items: center; animation: slide var(--animation-speed, 48s) linear infinite; }
 
-  #shadow-dynamic-app .moving-title { margin-top: 1.2rem; width: 60%; }
-}
-
-@media screen and (min-width: 2025px) {
-  .moving-title { margin-top: -1.2rem; }
-  #shadow-dynamic-app .moving-title { margin-top: 0rem; }
+  /* SVG icon styles for rotation and size (stabilized) */
+  .logo-container { margin: 0 0.04em; position: relative; top: -4px;}
+  .svg-icon { width: 1.04em; height: 1.04em; }
+  #Layer_12 { width: 100%; height: 100%; padding: 0; margin: 0; }
+  #shadow-dynamic-app span.svg-icon { width: 1.04em; height: 1.04em; }
+  .logo-container .svg-icon { padding-right: 6px; padding-left: 1px; }
+  #shadow-dynamic-app .logo-container .svg-icon { padding-right: 6px; padding-left: 1px; }
 }

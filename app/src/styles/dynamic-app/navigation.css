@@ -1,0 +1,273 @@
+/* Navigation menu style code for mobile devices */
+/* General Styles */
+.no-scroll {overflow: hidden;}
+.top-bar-items {display: flex; align-items: center; justify-content: space-between; z-index: 700; position: relative;}
+.image-container-g::-webkit-scrollbar {display: none;}
+.top-bar-items.menu-open {backdrop-filter: none !important; -webkit-backdrop-filter: none !important;}
+.site-title {pointer-events: none; user-select: none; touch-action: none;}
+.nav-item { min-width: 0; }
+.nav-item h4 { white-space: normal; word-wrap: break-word; }
+.nav-link-2 > h4, .nav-item .name { max-width: 85%; }
+.nav-item .name h4 { max-width: 100%; }
+
+/* Shadow wrappéd */
+  .navigation--shadow, .navigation--shadow .menu-icon {
+  position: relative !important;
+  cursor: default !important;
+}
+
+/* Mobile view */
+@media (max-width: 767px) {
+.navigation {position: fixed; top: 0; width: 100%; transition: transform 0.2s ease-in-out; z-index: 1000; align-items: center;}
+.navigation.hidden {transform: translateY(-100%); width: 100%;}
+.navigation.visible { transform: translateY(0);}
+
+/* Hamburger menu and site title positioning */
+.top-bar-items {padding-left: 2.2em; padding-right: 2.2em; padding-top: 16px; padding-bottom: 16px;}
+#shadow-dynamic-app .top-bar-items {padding-left: 2.2em; padding-right: 2.2em;}
+.menu-icon {cursor: pointer; display: flex; align-items: center; position: relative; width: 18px; height: 18px;}
+#shadow-dynamic-app .menu-icon {width: 18px; height: 18px;}
+
+/* Hamburger menu opened-closed state styles */
+.hamburger {position: relative; width: 15px; height: 2px; background-color: #fff; transition: all 0.2s ease;}
+#shadow-dynamic-app .hamburger {width: 15px; height: 2px;}
+.hamburger::before, .hamburger::after {content: ''; position: absolute;
+width: 18px; height: 2px; background-color: #fff; transition: all 0.2s ease;}
+#shadow-dynamic-app .hamburger::before, #shadow-dynamic-app .hamburger::after {width: 18px; height: 2px;}
+.hamburger::before {top: -5px;}
+.hamburger::after {top: 5px; }
+#shadow-dynamic-app .hamburger::before {top: -5px;}
+#shadow-dynamic-app .hamburger::after {top: 5px;}
+.hamburger.open {background-color: transparent;}
+.hamburger.open::before {transform: rotate(45deg); top: 0;}
+.hamburger.open::after {transform: rotate(-45deg); top: 0;}
+
+/* Menu open items */
+.nav-links {list-style: none; display: flex; gap: 20px; transition: transform 0.2s ease;}
+.nav-links li {margin: 0;}
+.nav-links a {text-decoration: none; color: #fff;font-weight: 500;}
+.nav-links.open {display: block;}
+.nav-links {position: absolute; top: 100%; left: 0; right: 0; flex-direction: column;
+align-items: center; display: none; transform: translateY(-20px);}
+.nav-links.open {display: flex; transform: translateY(0);}
+.nav-link {display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; padding: 1em 1.6em; cursor: pointer;}
+.nav-link:hover {background-color: #222222; border-radius: 2px; transition: background-color 0.15s ease;}
+/* desktop's hover color, reused across all viewports for non-shadow nav (not footer) */
+#dynamic-theme-ssr .nav-link:hover {background-color: rgba(128, 128, 128, 0.2);}
+
+/* Menu is open */
+div.menu-item.open {height: 100dvh; width: 100%; top: 0; left: 0; position: fixed; z-index: 300;} div.menu-item {height: 0px; top: 0; left: 0; width: 100%; position: fixed; z-index: 300; overflow: hidden;}
+div.menu-item-1 {position: absolute;} div.menu-item-2 {height: 100dvh; width: 68%; margin-left: 32%; z-index: 500;}
+div.menu-item div.menu-item-1 {transition: 0.2s ease-in;} div.menu-item.open div.menu-item-1 {height: 100vh; width: 100vw; background: rgba(42, 42, 42, 0.174);}
+div.menu-item.open .menu-item-1 {backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); transition: 0.1s ease-in-out;}
+div.menu-item div.menu-item-2 {transform: translateX(101%); backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px); }
+div.menu-item.open .menu-item-2 {transform: translateX(0); backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); background-color: var(--darkenedColor); border-left: var(--darkerColor) 2px solid;}
+div.menu-item.open h4, div.menu-item.open h3 {color: #fbfbfb; padding-left: 0em;} div.menu-item h4, div.menu-item h3 {color: var(--darkenedColor); transition: 0.2s ease-in;}
+div.menu-item-2 {box-sizing: border-box; display: flex; overflow: hidden; flex-direction: column; justify-content: space-between; }
+.menu-nav {display: flex; flex-direction: column; padding-top: 4.8em; padding-bottom: 1.6em; padding-left: 1.6em; padding-right: 0.8em;}
+
+/* Gallery Styles */
+.gallery-wrapper {display: flex; flex-direction: row; height: 100%; align-items: stretch; padding-bottom: 1.6em; overflow: hidden;}
+.gallery-container {overflow-y: auto; overflow-x: hidden; flex: 1; display: flex; flex-direction: column; padding-bottom: 0px; scrollbar-width: none; -webkit-overflow-scrolling: touch; height: 100%; padding-bottom: 24px;}
+.gallery-container img:not(:first-child) {margin-top: 4px;}
+.gallery-container::-webkit-scrollbar {display: none;}
+.gallery-container img.gallery-image {width: 100%; border-radius: 2px;}
+.gallery-title {display: inline-block; padding-top: 1.6em; padding-bottom: 0.6em;}
+.image-container-g {padding-left: 6px; padding-right: 3px; display: flex; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: flex-start; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; padding-bottom: 0.8em; height: 100%; border-radius: 2px 2px 0px 0px;}
+
+/* SVG icon styles */
+.arrow1 {width: 1.3em; height: 1.3em; flex-shrink: 0;}
+.arrow2 {width: 1.3em; height: 1.3em; transform: rotate(180deg); display: inline-block;}
+.arrow3 {width: 1.2em; height: 1.2em; flex-shrink: 0;}
+#shadow-dynamic-app .arrow3 {width: 1.2em; height: 1.2em;}
+
+/* Full progress bar container */
+.scroll-indicator {position: relative; height: 100%; width: 4px; margin: 0; top: 0;
+left: 0; background: var(--edgeColor, #444); border-radius: 0; flex-shrink: 0; border-radius: 2px; overflow: hidden;}
+.scroll-indicator::after {content: ''; position: absolute; left: 0; top: 0;
+width: 100%; height: var(--progress-dimension, 2%); background: #fff; transition: height 0.1s ease-in-out, top 0.1 ease-in-out;}
+
+/* Scroll hint adjustments */
+.scroll-hint {display: flex; flex-direction: column-reverse; align-items: center; position: absolute; bottom: 0%; left: 0; right: 0; margin-left: auto; margin-right: auto; width: fit-content; z-index: 1000; gap: 18px; background: #232424; border: var(--darkerColor) 1.6px solid; padding: 8px 18px 18px 18px; border-radius: 2px; text-align: center; opacity: 1; transition: opacity 0.8s ease-out;
+animation: scrollHintMove 1s infinite alternate ease-in-out;}
+#dynamic-theme-ssr .scroll-hint h5 {font-size: clamp(13px, 1.1em, 18px);}
+@keyframes scrollHintMove {0% {bottom: 6%; } 100% {bottom: 4%; }}
+
+/* Footer */
+.footer { position: relative; z-index: 50; padding-top: 2.4em; padding-bottom: 5.6em; padding-left: 0; padding-right: 0;}
+#shadow-dynamic-app .footer {padding-left: 0; padding-right: 0;}
+.nav-link-2 { display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; padding: 1em 2.2em; cursor: pointer; }
+.nav-link-2:hover { background-color: #222222; border-radius: 2px; transition: background-color 0.15s ease; }
+}
+
+/* Navigation menu style code for tablet devices */
+@media (min-width: 768px) and (max-width: 1024px) {
+.navigation {position: fixed; top: 0; width: 100%; transition: transform 0.2s ease-in-out; z-index: 1000; align-items: center;}
+.navigation.hidden {transform: translateY(-100%); width: 100%;}
+.navigation.visible { transform: translateY(0);}
+.top-bar-items {padding: 1.6em 2.4em;}
+
+/* nav-item is shared between the nav menu and the footer -- scoping to
+   #dynamic-theme-ssr only bumps the non-shadow route, and since h4 is a
+   descendant either way (wrapped in .name or not), this covers both. */
+#dynamic-theme-ssr .nav-item h4 {font-size: clamp(16px, 1.1em, 26px);}
+
+/* Hamburger menu and site title positioning  */
+.menu-icon {cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; width: 23.8px; height: 16.8px;}
+#dynamic-theme-ssr .menu-icon {width: 20px; height: 13.2px; justify-content: flex-start;}
+#shadow-dynamic-app .menu-icon {width: 18.7px; height: 13.2px;}
+
+/* Hamburger menu opened-closed state styles */
+.hamburger {position: relative; width: 21px; height: 2.8px; background-color: #fff; transition: all 0.2s ease;}
+.hamburger::before, .hamburger::after {content: ''; position: absolute;
+  width: 25.2px; height: 2.8px; background-color: #fff; transition: all 0.2s ease;}
+.hamburger::before {top: -7px;}
+.hamburger::after {top: 7px;}
+.hamburger.open {background-color: transparent;}
+#dynamic-theme-ssr .hamburger {width: 16px; height: 2px;}
+#dynamic-theme-ssr .hamburger::before, #dynamic-theme-ssr .hamburger::after {width: 20px; height: 2px;}
+#dynamic-theme-ssr .hamburger::before {top: -5px;}
+#dynamic-theme-ssr .hamburger::after {top: 5px;}
+#shadow-dynamic-app .hamburger {width: 15px; height: 1.8px;}
+#shadow-dynamic-app .hamburger::before, #shadow-dynamic-app .hamburger::after {width: 17px; height: 1.8px;}
+#shadow-dynamic-app .hamburger::before {top: -5px;}
+#shadow-dynamic-app .hamburger::after {top: 5px;}
+.hamburger.open::before {transform: rotate(45deg); top: 0;}
+.hamburger.open::after {transform: rotate(-45deg); top: 0;}
+#dynamic-theme-ssr .hamburger.open::before, #dynamic-theme-ssr .hamburger.open::after {top: 0; left: -2px;}
+
+/* Menu open items */
+.nav-links {list-style: none; display: flex; gap: 20px; transition: transform 0.2s ease;}
+.nav-links li {margin: 0;}
+.nav-links a {text-decoration: none;color: #fff;font-weight: 500;}
+.nav-links.open {display: block;}
+.nav-links {position: absolute; top: 100%; left: 0; right: 0; background: #fff; flex-direction: column;
+align-items: center; display: none; transform: translateY(-20px);}
+.nav-links.open {display: flex; transform: translateY(0);}
+.nav-link {display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; padding: 0.8em 0; cursor: pointer;}
+.nav-link:hover {background-color: #222222; border-radius: 2px; transition: background-color 0.15s ease;}
+/* match footer's tablet padding + reuse desktop's hover color, non-shadow only */
+#dynamic-theme-ssr .nav-link {padding: 0.8em 2.4em;}
+#dynamic-theme-ssr .nav-link:hover {background-color: rgba(128, 128, 128, 0.2);}
+
+/* Menu is open */
+div.menu-item.open {height: 100vh; width: 100%; top: 0; left: 0; position: fixed; z-index: 300;} div.menu-item {height: 0px; top: 0; left: 0; width: 100%; position: fixed; z-index: 300; overflow: hidden;}
+div.menu-item-1 {position: absolute;} div.menu-item-2 {height: 100dvh; width: 60%; margin-left: 40%; z-index: 500;}
+div.menu-item div.menu-item-1 {transition: 0.2s ease-in;} div.menu-item.open div.menu-item-1 {height: 100vh; width: 100vw; background: rgba(42, 42, 42, 0.174);}
+div.menu-item.open .menu-item-1 {backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); transition: 0.1s ease-in-out;}
+div.menu-item div.menu-item-2 {transform: translateX(100%); backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px); transition: 0.1s ease-in-out;}
+div.menu-item.open .menu-item-2 {transform: translateX(0); backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); background-color: var(--darkenedColor); border-left: var(--darkerColor) 1px solid;}
+div.menu-item.open h4, div.menu-item.open h3 {color: #fbfbfb; padding-left: 0em;} div.menu-item h4, div.menu-item h3 {color: var(--darkenedColor); transition: 0.2s ease-in;}
+.menu-nav {display: flex; flex-direction: column; padding-top: 5.8em; padding-bottom: 2.4em;}
+div.menu-item-2 {box-sizing: border-box; padding-left: 1.6em; padding-right: 2.2em; display: flex; overflow:hidden; flex-direction: column; justify-content: space-between;}
+
+/* Gallery Styles */
+.gallery-wrapper {display: flex; flex-direction: row; height: 100%; align-items: stretch; padding-bottom: 1.6em; overflow: hidden;}
+.gallery-container {overflow-y: auto; overflow-x: hidden; flex: 1; display: flex; flex-direction: column; padding-bottom: 0px; scrollbar-width: none; -webkit-overflow-scrolling: touch; height: 100%; padding-bottom: 24px; min-height: 132%;}
+.gallery-container img {position: relative; z-index: 390;}
+.gallery-container img:not(:first-child) {margin-top: 4px;}
+.gallery-container::-webkit-scrollbar {display: none;}
+.gallery-container img.gallery-image {width: 100%; border-radius: 2px;}
+.gallery-title {display: inline-block; padding-top: 2.6em;}
+.image-container-g {padding-left: 12px; display: flex; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: flex-start; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; padding-bottom: 25svh; height: 100%; border-radius: 2px 2px 0px 0px;}
+
+/* SVG icon styles */
+.arrow1 {width: 1.3em; height: 1.3em; flex-shrink: 0;}
+.arrow2 {width: 1em; height: 1em; transform: rotate(180deg); display: inline-block;}
+.arrow3 {width: 1.3em; height: 1.3em; flex-shrink: 0;}
+
+/* Full progress bar container */
+.scroll-indicator {position: relative; height: 100%; width: 3px; margin: 0; top: 0;
+left: 0; background: var(--edgeColor, #444); border-radius: 0; flex-shrink: 0; border-radius: 2px; overflow: hidden;}
+.scroll-indicator::after {content: ''; position: absolute; left: 0; top: 0;
+width: 100%; height: var(--progress-dimension, 2%); background: #fff; transition: height 0.1s ease-in-out, top 0.1 ease-in-out;}
+
+/* Scroll hint adjustments */
+.scroll-hint {display: flex; align-items: center; position: absolute; bottom: 0%; left: 0; right: 0; margin-left: auto; margin-right: auto; width: fit-content; z-index: 1000; gap: 18px; background: #222222; border: var(--darkerColor) 1.6px solid; padding: 20px 20px 20px 24px; border-radius: 2px; text-align: center; opacity: 1; transition: opacity 0.8s ease-out;
+animation: scrollHintMove 1s infinite alternate ease-in-out;}
+@keyframes scrollHintMove {0% {bottom: 12%; } 100% {bottom: 10%;}}
+
+/* Footer */
+.footer {position: relative; z-index: 50; padding-top: 2.4em; padding-bottom: 10em; padding-left: 4.8em; padding-right: 4.8em;}
+#shadow-dynamic-app .footer {padding-top: 2.4em; padding-left: 4.8em; padding-right: 4.8em; padding-bottom: 10em;}
+.nav-link-2 {display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; padding: 0.8em 2.4em; cursor: pointer;}
+.nav-link-2:hover {background-color: #222222; border-radius: 2px; transition: background-color 0.15s ease;}
+}
+
+
+/* Navigation menu style code for desktop */
+@media (min-width: 1025px) {
+.navigation {position: fixed; top: 0; width: 100%; transition: transform 0.2s ease-in-out; z-index: 1000; display: flex; align-items: center; justify-content: center;}
+.navigation.hidden {transform: translateY(-100%); width: 100%;}
+.navigation.visible { transform: translateY(0);}
+.top-bar-items {padding-top: 11px; padding-bottom: 11px; display: flex; align-items: center; justify-content: center; z-index: 700; width: 100%; position: relative;}
+/* Hamburger menu and site title positioning  */
+.menu-icon {margin-left: 1.2em; cursor: pointer; display: flex; align-items: center; position: relative; width: 32px; height: 22px;}
+#shadow-dynamic-app .menu-icon {width: 27.2px; height: 18.7px;}
+.site-title {margin-right: 1.2em;}
+
+/* Hamburger menu opened-closed state styles */
+.hamburger {position: relative; width: 21px; height: 2px; background-color: #fff; transition: all 0.2s ease;}
+.hamburger::before, .hamburger::after {content: ''; position: absolute; width: 23px; height: 2px; background-color: #fff; transition: all 0.2s ease;}
+.hamburger::before {top: -7px;}
+.hamburger::after {top: 7px;}
+#shadow-dynamic-app .hamburger {width: 17.85px; height: 1.7px;}
+#shadow-dynamic-app .hamburger::before, #shadow-dynamic-app .hamburger::after {width: 19.55px; height: 1.7px;}
+#shadow-dynamic-app .hamburger::before {top: -5.95px;}
+#shadow-dynamic-app .hamburger::after {top: 5.95px;}
+.hamburger.open {background-color: transparent;}
+.hamburger.open::before {transform: rotate(45deg); top: 0;}
+.hamburger.open::after {transform: rotate(-45deg); top: 0;}
+
+/* Menu open items */
+.nav-links {list-style: none; display: flex; gap: 20px; transition: transform 0.2s ease;}
+.nav-links li {margin: 0;}
+.nav-links a {text-decoration: none;color: #fff;font-weight: 500;}
+.nav-links.open {display: block;}
+.nav-links {position: absolute; top: 100%; left: 0; right: 0; background: #fff; flex-direction: column; align-items: center; display: none; transform: translateY(-20px);}
+.nav-links.open {display: flex; transform: translateY(0);}
+.nav-link {display: flex; align-items: center; justify-content: space-between; width: clamp(300px, 60%, 400px); box-sizing: border-box; padding: 0.8em 2.4em; cursor: pointer;}
+.nav-link:hover {background-color: rgba(128, 128, 128, 0.2); border-radius: 2px; transition: background-color 0.15s ease;}
+
+/* Menu is open */
+div.menu-item.open {height: 100.1vh; width: 100%; top: 0; position: fixed; z-index: 300;} div.menu-item {height: 0px; top: 0; left: 0; width: 100%; position: fixed; z-index: 300; overflow: hidden;}
+div.menu-item-1 {position: absolute;}
+div.menu-item div.menu-item-1 {transition: 0.2s ease-in;} div.menu-item.open div.menu-item-1 {height: 100vh; width: 100vw; background: rgba(42, 42, 42, 0.174);}
+div.menu-item.open .menu-item-1 {backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); transition: 0.1s ease-in-out;}
+div.menu-item div.menu-item-2 {transform: translateX(100%); backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px); transition: 0.1s ease-in-out;}
+div.menu-item.open .menu-item-2 {transform: translateX(0); backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); background-color: var(--darkenedColor); border-left: var(--darkerColor) 1px solid;}
+div.menu-item-2 {height: 100%; width: calc(50% + 84px); margin-left: calc(50% - 84px); z-index: 500; box-sizing: border-box; padding-left: 1.6em; padding-right: 1.6em; display: flex; overflow:hidden; flex-direction: column; justify-content: space-between;}
+div.menu-item.open h4, div.menu-item.open h3 {color: #fbfbfb; padding-left: 0em;} div.menu-item h4, div.menu-item h3 {color: var(--darkenedColor); transition: 0.2s ease-in;}
+.menu-nav {display: flex; flex-direction: column; padding-top: 6.2em; padding-bottom: 1.8em; flex-shrink: 0;}
+
+/* Gallery Styles */
+.gallery-wrapper {position: relative; overflow: hidden; height: calc(100% - 40px); display: flex; flex-direction: column; justify-content: center;}
+.gallery-container img:not(:first-child) {margin-left: 4px;}
+.gallery-container::-webkit-scrollbar {display: none;}
+.gallery-container img.gallery-image {height: 100%; border-radius: 2px; object-fit: contain;}
+.gallery-title {display: inline-block; padding-top: 1.6em;}
+.gallery-container {overflow-y: hidden; position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 2px; flex: 1; display: flex; padding-bottom: 1.4em;}
+.image-container-g {display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; justify-content: flex-start; overflow-y: hidden; overflow-x: auto; scrollbar-width: none; padding-right: 24px;}
+
+/* SVG icon styles */
+.arrow1 {width: 1.2em; height: 1.2em; flex-shrink: 0;}
+.arrow2 {width: 0.95em; height: 0.95em; transform: rotate(-90deg); display: inline-block;}
+.arrow3 {width: 1.2em; height: 1.2em; flex-shrink: 0;}
+
+/* Full progress bar container */
+.scroll-indicator {position: relative; top: 0; left: 0; height: 4px;
+background: var(--edgeColor, #444); width: 100%; border-radius: 2px; overflow: hidden; margin-bottom: 8px;}
+.scroll-indicator::before {content: ''; position: absolute; top: 0; left: 0; height: 100%;
+width: var(--progress-dimension, 2%); background: #fff; transition: width 0.1s ease-in-out;}
+
+/* Scroll hint overlay */
+.scroll-hint { position: absolute; top: 43.5%; background: #222222; border: var(--darkerColor) 1.6px solid; padding: 16px 15px 16px 21px; border-radius: 2px; text-align: center; opacity: 1; transition: opacity 0.8s ease-out; pointer-events: none; z-index: 10; display: flex; align-items: center; gap: 12px;
+animation: scrollHintMove 1s infinite alternate ease-in-out; transition: opacity 0.2s ease-out;}
+@keyframes scrollHintMove {0% {left: 4%;} 100% {left: 5%;}}
+
+/* Footer */
+.footer {position: relative; z-index: 50; padding-top: 2.4em; padding-bottom: 6.2em; padding-left: clamp(10%, calc(50vw - 350px), 36%); padding-right: clamp(10%, calc(50vw - 350px), 36%);}
+#shadow-dynamic-app .footer {padding-left: 18%; padding-right: 18%; padding-top: 2.4em; padding-bottom: 6.2em;}
+.nav-link-2 {display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box; padding: 0.8em 2.4em; cursor: pointer;}
+.nav-link-2:hover {background-color: rgba(128, 128, 128, 0.2); border-radius: 2px; transition: background-color 0.15s ease;}
+}

@@ -1,481 +1,106 @@
-/* Dynamic app shell and typography */
-body {
-  background-color: #1e1f22;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Orbitron', 'Rubik', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-weight: 300;
+/* General styles */
+/* This route strips the site-wide stylesheet (see buildRenderHead.ts), so
+   font+theme.css's scrollbar-hiding rule never reaches it -- hide it here
+   directly instead of relying on that. */
+html, body { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+
+body { background-color: #1e1e1f; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Orbitron', 'Rubik', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-weight: 300; }
+body #homePage { background-color: #1e1e1f; }
+div { background-color: transparent; }
+.no-overflow { overflow: hidden; }
+a { text-decoration: none; }
+.section-divider3 { background-color: #1e1e1f; }
+h-title a { color: #ffffff; }
+label p { color: #dbdbdb; }
+.lottie-container, .lottie-container:hover { filter: brightness(1.4); }
+.custom-arrow { filter: brightness(0.8); }
+
+#shadow-dynamic-app { position: relative; background-color: #1e1e1f; user-select: none; overflow: hidden; }
+#shadow-dynamic-app .menu-item { display: none; }
+
+/* ================= MOBILE ================= */
+@media screen and (max-width: 767px) {
+
+.section-divider3 { height: 0.2em; margin-top: -0.6em; }
+
+h1 { font-size: clamp(44px, 2.2em, 60px); color: #f0f0f0; font-family: 'Orbitron','Oxygen','Ubuntu','Cantarell',sans-serif; font-weight: 300; margin-top: 0px; margin-bottom: 4px; line-height: 1.4; letter-spacing: 4.8px; text-rendering: geometricPrecision; opacity: 0.98; }
+#shadow-dynamic-app h1 { font-size: clamp(44px, 2.2em, 60px); letter-spacing: 4.8px; font-weight: 300; line-height: 1.3; opacity: 0.98; }
+h1 a:hover { font-size: calc(1.1 * clamp(50px, 8vw, 100px)); }
+
+h2 { color: #f4f4f4; font-size: calc(0.9 * clamp(50px, 2.8em, 100px)); font-family: 'Rubik'; font-weight: 360; }
+
+h-name, h-name a { color: #f7f7f7; font-size: clamp(15px, 0.95em, 36px); font-family: 'Rubik'; font-weight: 500; letter-spacing: 0.8px; line-height: 1.55; margin: 0px; text-rendering: geometricPrecision; opacity: 0.96; }
+
+h3 { color: #f7f7f7; font-size: clamp(20px, 1.1em, 40px); line-height: 1.2; font-family: 'Rubik'; font-weight: 340; letter-spacing: 1.1px; margin: 14px 0 12px 0; }
+#shadow-dynamic-app h3 { font-size: clamp(20px, 1.1em, 40px); line-height: 1.2; }
+h4 { color: #f5f5f5; font-size: clamp(16px, 0.9em, 28px); line-height: 1.3; font-family: 'Rubik'; font-weight: 320; letter-spacing: 0.35px; margin: 9px 0 11px 0; }
+#shadow-dynamic-app h4 { font-size: clamp(16px, 0.9em, 28px); line-height: 1.3; }
+h5 { color: #f6f6f6; font-size: clamp(16px, 1.8em, 32px); line-height: 1.15; font-family: 'Rubik'; font-weight: 380; letter-spacing: 0.35px; margin: 0px; }
+#shadow-dynamic-app h5 { font-size: clamp(16px, 1.8em, 32px); line-height: 1.15; }
+
+h-title { color: #fff; font-size: clamp(20px, 1.6em, 32px); line-height: 1.2; font-family: 'Rubik'; font-weight: 320; letter-spacing: 0.35px; margin: 0px; }
+#shadow-dynamic-app h-title { font-size: clamp(20px, 1.6em, 32px); line-height: 1.2; }
+
+p, .p { color: #f5f5f5; font-size: clamp(12px, 3.2vw, 32px); font-family: 'Rubik'; font-weight: 320; letter-spacing: 0.35px; }
+
+/* shadow typography */
+#shadow-dynamic-app h-name, #shadow-dynamic-app h-name a { font-size: clamp(15px, 0.95em, 36px); letter-spacing: 0.8px; font-weight: 500; line-height: 1.55; opacity: 0.96; }
+
 }
 
-.no-overflow {
-  overflow: hidden;
-}
-
-a {
-  text-decoration: none;
-}
-
-label p {
-  color: #dbdbdb;
-}
-
-.lottie-container,
-.lottie-container:hover {
-  filter: brightness(1.4);
-}
-
-.custom-arrow {
-  filter: brightness(0.8);
-}
-
-:where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) {
-  --dynamic-font-display: 'Orbitron', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  --dynamic-font-ui: 'Rubik', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  --dynamic-home-bg: #2f2f33;
-}
-
-:where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) #homePage {
-  background-color: var(--dynamic-home-bg);
-}
-
-:where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) div {
-  background-color: transparent;
-}
-
-:where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h-title a {
-  color: #efe9e9;
-}
-
-#shadow-dynamic-app {
-  position: relative;
-  background-color: #1e1f22;
-  padding-left: 1.2rem;
-  padding-right: 1.2rem;
-  user-select: none;
-  overflow: hidden;
-  min-height: 100%;
-}
-
-@media screen and (max-width: 768px) {
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .section-divider {
-    height: 3.6rem;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .section-divider2 {
-    height: 2.2rem;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .section-divider3 {
-    height: 0.2rem;
-    margin-top: -0.6rem;
-  }
-
-  #shadow-dynamic-app {
-    padding-left: 0.8rem;
-    padding-right: 0.8rem;
-  }
-
-  #shadow-dynamic-app .section-divider {
-    height: 0.8rem;
-  }
-
-  #shadow-dynamic-app #homePage {
-    padding-left: 0.4rem;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h1 {
-    margin: 0 0 4px;
-    color: #f0f0f0;
-    font-family: var(--dynamic-font-display);
-    font-size: clamp(40px, 3.2em, 116px);
-    font-weight: 360;
-    line-height: 1.4;
-    letter-spacing: 1.6px;
-    text-rendering: geometricPrecision;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h2 {
-    color: #f4f4f4;
-    font-family: var(--dynamic-font-ui);
-    font-size: calc(0.9 * clamp(50px, 2.8em, 100px));
-    font-weight: 360;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h3 {
-    margin: 14px 0 12px;
-    color: #f7f7f7;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(24px, 1.4em, 66px);
-    font-weight: 340;
-    letter-spacing: 1.1px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h4 {
-    margin: 9px 0 11px;
-    color: #f5f5f5;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(21px, 1.2em, 48px);
-    font-weight: 320;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h5 {
-    margin: 0;
-    color: #f6f6f6;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(16px, 3.6vw, 40px);
-    font-weight: 380;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h-name {
-    margin: 0;
-    color: #f7f7f7;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(20px, 1em, 58px);
-    font-weight: 420;
-    letter-spacing: 1.2px;
-    text-rendering: geometricPrecision;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h-title {
-    margin: 0;
-    color: #ffffff;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(24px, 4.8vw, 48px);
-    font-weight: 320;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) p,
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .p {
-    color: #f5f5f5;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(12px, 3.2vw, 32px);
-    font-weight: 320;
-    letter-spacing: 0.35px;
-  }
-
-  #shadow-dynamic-app h1 {
-    font-size: clamp(56px, 2.6em, 72px);
-    font-weight: 300;
-    line-height: 1.05;
-    letter-spacing: 4.8px;
-    opacity: 0.98;
-    text-rendering: geometricPrecision;
-  }
-
-  #shadow-dynamic-app h-name,
-  #shadow-dynamic-app h-name a {
-    font-size: clamp(13px, 0.8em, 34px);
-    font-weight: 360;
-    line-height: 1.15;
-    letter-spacing: 0.8px;
-    opacity: 0.96;
-    text-rendering: geometricPrecision;
-  }
-}
-
+/* ================= TABLET ================= */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .section-divider {
-    height: 4.6rem;
-  }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .section-divider2 {
-    height: 0.4rem;
-  }
+#shadow-dynamic-app { padding-left: 0em; padding-right: 0em; }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .section-divider3 {
-    height: 0.4rem;
-    margin-top: -0.6rem;
-  }
+.section-divider3 { height: 0.4em; margin-top: -0.6em; }
 
-  #shadow-dynamic-app {
-    padding-left: 0;
-    padding-right: 0;
-  }
+h1 { font-size: clamp(66px, 3em, 92px); color: #f0f0f0; font-family: 'Orbitron','Oxygen','Ubuntu','Cantarell',sans-serif; font-weight: 300; margin-top: 0; margin-bottom: 8px; letter-spacing: 5.2px; line-height: 1.35; opacity: 0.98; }
+#shadow-dynamic-app h1 { font-size: clamp(56px, 2.4em, 78px); letter-spacing: 5.2px; font-weight: 300; line-height: 1.35; opacity: 0.98; }
+h2 { color: #f2f2f2; font-size: clamp(36px, 3em, 72px); font-family: 'Rubik'; font-weight: 360; }
+h3 { color: #f7f7f7; font-size: clamp(22px, 1.8em, 40px); line-height: 1.2; font-family: 'Rubik'; font-weight: 320; letter-spacing: 1.05px; margin: 22px 0 18px 0; }
+#shadow-dynamic-app h3 { font-size: clamp(22px, 1.8em, 40px); line-height: 1.2; }
+h4 { color: #f4f4f4; font-size: clamp(14px, 0.85em, 22px); line-height: 1.3; font-family: 'Rubik'; font-weight: 320; letter-spacing: 0.35px; margin: 16px 0 14px 0; }
+#shadow-dynamic-app h4 { font-size: clamp(14px, 0.85em, 22px); line-height: 1.3; }
+h5 { color: #f6f6f6; font-size: clamp(12px, 1.3em, 20px); line-height: 1.15; font-family: 'Rubik'; font-weight: 360; letter-spacing: 0.35px; margin: 0px; }
+#shadow-dynamic-app h5 { font-size: clamp(12px, 1.3em, 20px); line-height: 1.15; }
 
-  #shadow-dynamic-app .section-divider {
-    height: 1.2rem;
-  }
+h-name, h-name a { color: #f4f4f4; font-size: clamp(13px, 1.1em, 28px); font-family: 'Rubik'; font-weight: 500; letter-spacing: 1px; line-height: 1.55; opacity: 0.96; }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h1 {
-    margin: 0 0 0.2vw;
-    color: #f0f0f0;
-    font-family: var(--dynamic-font-display);
-    font-size: clamp(48px, 3.8em, 120px);
-    font-weight: 360;
-    line-height: 1.4;
-    letter-spacing: 2px;
-  }
+h-title { color: #ffffff; font-size: clamp(18px, 1.3em, 24px); line-height: 1.2; font-family: 'Rubik'; font-weight: 320; letter-spacing: 0.35px; }
+#shadow-dynamic-app h-title { font-size: clamp(18px, 1.3em, 24px); line-height: 1.2; }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h2 {
-    color: #f2f2f2;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(36px, 3em, 72px);
-    font-weight: 360;
-  }
+p, .p { color: #f5f5f5; font-size: clamp(10px, 1.8vw, 20px); font-family: 'Rubik'; font-weight: 320; letter-spacing: 0.35px; }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h3 {
-    margin: 22px 0 18px;
-    color: #f7f7f7;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(24px, 2.2em, 56px);
-    font-weight: 320;
-    letter-spacing: 1.05px;
-  }
+/* shadow typography */
+#shadow-dynamic-app h-name, #shadow-dynamic-app h-name a { font-size: clamp(13px, 1.1em, 28px); letter-spacing: 1px; font-weight: 500; line-height: 1.55; opacity: 0.96; }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h4 {
-    margin: 16px 0 14px;
-    color: #f4f4f4;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(16px, 1.2em, 32px);
-    font-weight: 320;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h5 {
-    margin: 0;
-    color: #f6f6f6;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(12px, 2vw, 22px);
-    font-weight: 360;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h-name {
-    color: #f4f4f4;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(10px, 2.2vw, 36px);
-    font-weight: 380;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h-title {
-    color: #ffffff;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(22px, 4vw, 26px);
-    font-weight: 320;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) p,
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .p {
-    color: #f5f5f5;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(10px, 1.8vw, 20px);
-    font-weight: 320;
-    letter-spacing: 0.35px;
-  }
-
-  #shadow-dynamic-app h1 {
-    font-size: clamp(56px, 2.4em, 78px);
-    font-weight: 300;
-    line-height: 1.05;
-    letter-spacing: 5.2px;
-    opacity: 0.98;
-  }
-
-  #shadow-dynamic-app h-name,
-  #shadow-dynamic-app h-name a {
-    font-size: clamp(10px, 0.95em, 26px);
-    font-weight: 340;
-    line-height: 1.15;
-    letter-spacing: 1px;
-    opacity: 0.96;
-  }
 }
 
+/* ================= DESKTOP ================= */
 @media screen and (min-width: 1025px) {
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .section-divider {
-    height: 5.6rem;
-  }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .section-divider2 {
-    height: 1.6rem;
-  }
+.section-divider3 { height: 0.2em; margin-top: -0.6em; }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .section-divider3 {
-    height: 0.2rem;
-    margin-top: -0.6rem;
-  }
+h1 { font-size: clamp(58px, calc(5.2vw - 5px), 100px); color: #f0f0f0; font-family: 'Orbitron','Oxygen','Ubuntu','Cantarell',sans-serif; font-weight: 300; letter-spacing: 5.6px; margin-top: 0; margin-bottom: 4px; line-height: 1.1; opacity: 0.98; }
+#shadow-dynamic-app h1 { font-size: clamp(64px, 3em, 88px); letter-spacing: 5.6px; font-weight: 300; line-height: 1.1; opacity: 0.98; }
+h2 { color: #f2f2f2; font-size: clamp(58px, 3vw, 90px); font-family: 'Rubik'; font-weight: 300; }
+h3 { color: #f7f7f7; font-size: clamp(21px, 1.9em, 36px); font-weight: 300; line-height: 1.2; opacity: 0.92; font-family: 'Rubik'; letter-spacing: 1.05px; margin: 16px 0 14px 0; }
+#shadow-dynamic-app h3 { font-size: clamp(21px, 1.6em, 32px); font-weight: 300; line-height: 1.2; opacity: 0.92; }
+h4 { color: #f4f4f4; font-size: clamp(15px, 0.9em, 20px); line-height: 1.3; font-family: 'Rubik'; font-weight: 320; letter-spacing: 0.35px; margin: 16px 0 14px 0; }
+#shadow-dynamic-app h4 { font-size: clamp(14px, 0.6em, 16px); line-height: 1.3; }
+h5 { color: #f6f6f6; font-size: clamp(8px, 1em, 15px); line-height: 1.15; font-family: 'Rubik'; font-weight: 320; letter-spacing: 0.35px; margin: 0px; }
+#shadow-dynamic-app h5 { font-size: clamp(8px, 1em, 15px); line-height: 1.15; }
 
-  #shadow-dynamic-app .section-divider {
-    height: 2.4rem;
-  }
+h-name { color: #f4f4f4; font-size: clamp(10px, 0.9em, 24px); font-family: 'Rubik'; font-weight: 500; letter-spacing: 1px; opacity: 0.95; }
+#shadow-dynamic-app h-name { font-size: clamp(12px, 1.1em, 32px); font-weight: 500; letter-spacing: 1px; opacity: 0.95; }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h1 {
-    margin: 0 0 0.2vw;
-    color: #dbdee2;
-    font-family: var(--dynamic-font-display);
-    font-size: clamp(68px, 3.2em, 104px);
-    font-weight: 340;
-    letter-spacing: 3.2px;
-  }
+h-title { color: #ffffff; font-size: clamp(16px, 3.4vw, 22px); font-family: 'Rubik'; font-weight: 320; letter-spacing: 0.35px; }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h2 {
-    color: #e9eaef;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(58px, 3vw, 90px);
-    font-weight: 480;
-  }
+p, .p { color: #f5f5f5; font-size: clamp(6px, 1vw, 24px); font-family: 'Rubik'; font-weight: 300; letter-spacing: 0.35px; }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h3 {
-    margin: 16px 0 14px;
-    color: #f7f7f7;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(34px, 1.6vw, 52px);
-    font-weight: 460;
-    letter-spacing: 1.05px;
-  }
+body #homePage { padding-left: 8em; padding-right: 8em; }
 
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h4 {
-    margin: 16px 0 14px;
-    color: #f4f4f4;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(18px, 1.4vw, 44px);
-    font-weight: 420;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h5 {
-    margin: 0;
-    color: #f6f6f6;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(8px, 1.1vw, 16px);
-    font-weight: 420;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h-name {
-    color: #f4f4f4;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(10px, 1.1em, 36px);
-    font-weight: 460;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h-title {
-    color: #e4e8ea;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(12px, 3vw, 18px);
-    font-weight: 420;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) p,
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) .p {
-    color: #f0f1f3;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(6px, 1vw, 24px);
-    font-weight: 400;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) #homePage {
-    padding-left: 8rem;
-    padding-right: 8rem;
-  }
-
-  #shadow-dynamic-app h1 {
-    font-size: clamp(60px, 3em, 76px);
-    font-weight: 420;
-    line-height: 1.1;
-    letter-spacing: 5.6px;
-    opacity: 0.98;
-  }
-
-  #shadow-dynamic-app h-name {
-    font-size: clamp(12px, 1.1em, 32px);
-    font-weight: 420;
-    letter-spacing: 1px;
-    opacity: 0.95;
-  }
-
-  #shadow-dynamic-app h3 {
-    transform: scale(0.62);
-    font-weight: 420;
-    opacity: 0.92;
-  }
-
-  #shadow-dynamic-app h4 {
-    margin: 16px 0 14px;
-    color: #f4f4f4;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(14px, 0.6em, 16px);
-    font-weight: 420;
-    letter-spacing: 0.35px;
-  }
-}
-
-@media screen and (min-width: 1100px) {
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) #homePage {
-    padding-left: 11rem;
-    padding-right: 11rem;
-  }
-}
-
-@media screen and (min-width: 1200px) {
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) #homePage {
-    padding-left: 12rem;
-    padding-right: 12rem;
-  }
-}
-
-@media screen and (min-width: 1300px) {
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) #homePage {
-    padding-left: 14rem;
-    padding-right: 14rem;
-  }
-}
-
-@media screen and (min-width: 1500px) {
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) #homePage {
-    padding-left: 16rem;
-    padding-right: 16rem;
-  }
-}
-
-@media screen and (min-width: 2025px) {
-  .dynamic-app {
-    overflow: hidden;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) #homePage {
-    padding-left: 18.8rem;
-    padding-right: 18.8rem;
-    overflow: hidden;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h-title {
-    font-size: clamp(26px, 36px, 42px);
-  }
-
-  #shadow-dynamic-app span.title-text {
-    padding-left: 2.2rem;
-    font-size: 88% !important;
-    font-weight: 320;
-    opacity: 0.95;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h5 {
-    margin: 0;
-    color: #f6f6f6;
-    font-family: var(--dynamic-font-ui);
-    font-size: clamp(13px, 1.65vw, 17px);
-    font-weight: 320;
-    letter-spacing: 0.35px;
-  }
-
-  :where(.homePage-container, #dynamic-theme-ssr, #shadow-dynamic-app) h1 {
-    font-size: clamp(92px, 6.2em, 144px);
-  }
-
-  #shadow-dynamic-app h1 {
-    font-size: clamp(64px, 3em, 96px);
-    font-weight: 300;
-    letter-spacing: 6px;
-  }
+/* shadow typography */
 }
