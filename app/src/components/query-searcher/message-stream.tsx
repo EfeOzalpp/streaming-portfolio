@@ -1,6 +1,6 @@
-// src/components/agentic-tools/message-stream.tsx
+// src/components/query-searcher/message-stream.tsx
 import { useEffect, useRef, useState } from 'react';
-import { useAgentic } from '../../state/providers/agentic-context';
+import { useQuerySearcher } from '../../state/providers/query-searcher-context';
 
 const CopyIcon = () => (
   <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -9,13 +9,13 @@ const CopyIcon = () => (
 );
 
 export default function MessageStream() {
-  const { messages, isStreaming, setScrollPercent, registerScrollToBottom } = useAgentic();
+  const { messages, isStreaming, setScrollPercent, registerScrollToBottom } = useQuerySearcher();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const prevLengthRef = useRef(0);
   const [touchedIndex, setTouchedIndex] = useState<number | null>(null);
 
-  // Register scroll-to-bottom so external callers (e.g. the button in AgenticSurface) can trigger it
+  // Register scroll-to-bottom so external callers (e.g. the button in QuerySearcherSurface) can trigger it
   useEffect(() => {
     registerScrollToBottom(() => {
       containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight, behavior: 'smooth' });

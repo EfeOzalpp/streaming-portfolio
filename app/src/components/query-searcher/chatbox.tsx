@@ -1,9 +1,9 @@
-// src/components/agentic-tools/chatbox.tsx
+// src/components/query-searcher/chatbox.tsx
 import React, { useEffect, useRef, useState } from 'react';
-import { useAgentic } from '../../state/providers/agentic-context';
-import type { AgenticMode } from '../../state/providers/agentic-context';
+import { useQuerySearcher } from '../../state/providers/query-searcher-context';
+import type { QuerySearcherMode } from '../../state/providers/query-searcher-context';
 
-const MODES: { key: AgenticMode; label: string; icon?: React.ReactNode }[] = [
+const MODES: { key: QuerySearcherMode; label: string; icon?: React.ReactNode }[] = [
   { key: 'conversation', label: 'Conversation' },
   { key: 'job-search',   label: 'Job Search', icon: (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -12,7 +12,7 @@ const MODES: { key: AgenticMode; label: string; icon?: React.ReactNode }[] = [
   )},
 ];
 
-const PLACEHOLDERS: Record<AgenticMode, string> = {
+const PLACEHOLDERS: Record<QuerySearcherMode, string> = {
   'conversation': "What's on your mind?",
   'job-search':   'Enter the job title you\'re seeking',
 };
@@ -21,7 +21,7 @@ const getScrollContainer = () =>
   document.querySelector('.Scroll') as HTMLElement | null;
 
 export default function ChatBox() {
-  const { mode, setMode, sendMessage, isStreaming } = useAgentic();
+  const { mode, setMode, sendMessage, isStreaming } = useQuerySearcher();
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 

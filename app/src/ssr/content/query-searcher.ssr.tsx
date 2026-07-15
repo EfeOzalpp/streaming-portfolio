@@ -1,14 +1,14 @@
-// src/ssr/content/agentic-tools.ssr.tsx
+// src/ssr/content/query-searcher.ssr.tsx
 import type { SsrDescriptor } from '../types';
 
-export const agenticToolsSSR: SsrDescriptor = {
+export const querySearcherSSR: SsrDescriptor = {
   fetch: async () => null,
 
   render: (_data) => (
     <section
-      className="agentic-tools"
+      className="query-searcher"
       id="no-ssr"
-      data-ssr-shell="agentic-tools"
+      data-ssr-shell="query-searcher"
       style={{
         position: 'relative',
         width: '100%',
@@ -17,7 +17,7 @@ export const agenticToolsSSR: SsrDescriptor = {
         overflowAnchor: 'none',
       }}
     >
-      <div className="at-surface tooltip-agentic-tools">
+      <div className="at-surface tooltip-query-searcher">
         {/* Greeting — matches initial conversation mode */}
         <p className="at-greeting">
           Hello{' '}

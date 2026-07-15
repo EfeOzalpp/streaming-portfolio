@@ -1,12 +1,12 @@
-// src/components/agentic-tools/index.tsx
-import { AgenticProvider, useAgentic } from '../../state/providers/agentic-context';
+// src/components/query-searcher/index.tsx
+import { QuerySearcherProvider, useQuerySearcher } from '../../state/providers/query-searcher-context';
 import ChatBox from './chatbox';
 import MessageStream from './message-stream';
 import { useTooltipInit } from '../general-ui/tooltip/tooltipInit';
 import '../../styles/block-type-t.css';
 
-export function AgenticSurface() {
-  const { hasMessages, mode, scrollPercent, messages, requestScrollToBottom } = useAgentic();
+export function QuerySearcherSurface() {
+  const { hasMessages, mode, scrollPercent, messages, requestScrollToBottom } = useQuerySearcher();
 
   useTooltipInit();
   const showFade = hasMessages;
@@ -25,7 +25,7 @@ export function AgenticSurface() {
     : null;
 
   return (
-    <div className={`at-surface tooltip-agentic-tools${hasMessages ? ' has-messages' : ''}`}>
+    <div className={`at-surface tooltip-query-searcher${hasMessages ? ' has-messages' : ''}`}>
       {showFade && (
         <div className="at-messages-fade">
           <div className="at-top-nav">
@@ -57,16 +57,16 @@ export function AgenticSurface() {
   );
 }
 
-export default function AgenticTools() {
+export default function QuerySearcher() {
   return (
-    <AgenticProvider>
+    <QuerySearcherProvider>
       <section
-        className="agentic-tools"
+        className="query-searcher"
         id="no-ssr"
         style={{ position: 'relative', width: '100%', height: '96dvh', overflow: 'hidden', overflowAnchor: 'none' }}
       >
-        <AgenticSurface />
+        <QuerySearcherSurface />
       </section>
-    </AgenticProvider>
+    </QuerySearcherProvider>
   );
 }

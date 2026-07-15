@@ -1,18 +1,18 @@
-// src/ssr/content/agentic-tools.enhancer.tsx
+// src/ssr/content/query-searcher.enhancer.tsx
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AgenticProvider } from '../../state/providers/agentic-context';
-import { AgenticSurface } from '../../components/agentic-tools';
+import { QuerySearcherProvider } from '../../state/providers/query-searcher-context';
+import { QuerySearcherSurface } from '../../components/query-searcher';
 import { useTooltipInit } from '../../components/general-ui/tooltip/tooltipInit';
 
-const AgenticToolsEnhancer: React.FC = () => {
+const QuerySearcherEnhancer: React.FC = () => {
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useTooltipInit();
 
   useEffect(() => {
     const shell = document.querySelector(
-      '[data-ssr-shell="agentic-tools"]'
+      '[data-ssr-shell="query-searcher"]'
     ) as HTMLElement | null;
     if (shell) {
       shell.replaceChildren();
@@ -23,11 +23,11 @@ const AgenticToolsEnhancer: React.FC = () => {
   if (!host) return null;
 
   return createPortal(
-    <AgenticProvider>
-      <AgenticSurface />
-    </AgenticProvider>,
+    <QuerySearcherProvider>
+      <QuerySearcherSurface />
+    </QuerySearcherProvider>,
     host
   );
 };
 
-export default AgenticToolsEnhancer;
+export default QuerySearcherEnhancer;

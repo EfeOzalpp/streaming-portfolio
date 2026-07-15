@@ -1,12 +1,12 @@
-// src/state/providers/agentic-context.tsx
+// src/state/providers/query-searcher-context.tsx
 import React, { createContext, useState, useContext, useRef, useCallback } from 'react';
 
-export type AgenticMode = 'conversation' | 'job-search';
+export type QuerySearcherMode = 'conversation' | 'job-search';
 export type Message = { role: 'user' | 'assistant'; content: string };
 
-interface AgenticContextType {
-  mode: AgenticMode;
-  setMode: (m: AgenticMode) => void;
+interface QuerySearcherContextType {
+  mode: QuerySearcherMode;
+  setMode: (m: QuerySearcherMode) => void;
   messages: Message[];
   sendMessage: (content: string) => void;
   isStreaming: boolean;
@@ -17,16 +17,16 @@ interface AgenticContextType {
   registerScrollToBottom: (fn: () => void) => void;
 }
 
-const AgenticContext = createContext<AgenticContextType | undefined>(undefined);
+const QuerySearcherContext = createContext<QuerySearcherContextType | undefined>(undefined);
 
-const EMPTY_THREADS: Record<AgenticMode, Message[]> = {
+const EMPTY_THREADS: Record<QuerySearcherMode, Message[]> = {
   'conversation': [],
   'job-search': [],
 };
 
-export function AgenticProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setMode] = useState<AgenticMode>('conversation');
-  const [threads, setThreads] = useState<Record<AgenticMode, Message[]>>(EMPTY_THREADS);
+export function QuerySearcherProvider({ children }: { children: React.ReactNode }) {
+  const [mode, setMode] = useState<QuerySearcherMode>('conversation');
+  const [threads, setThreads] = useState<Record<QuerySearcherMode, Message[]>>(EMPTY_THREADS);
   const [isStreaming, setIsStreaming] = useState(false);
   const [scrollPercent, setScrollPercent] = useState(100);
 
@@ -97,14 +97,14 @@ export function AgenticProvider({ children }: { children: React.ReactNode }) {
   }, [threads, mode]);
 
   return (
-    <AgenticContext.Provider value={{ mode, setMode, messages, sendMessage, isStreaming, hasMessages, scrollPercent, setScrollPercent, requestScrollToBottom, registerScrollToBottom }}>
+    <QuerySearcherContext.Provider value={{ mode, setMode, messages, sendMessage, isStreaming, hasMessages, scrollPercent, setScrollPercent, requestScrollToBottom, registerScrollToBottom }}>
       {children}
-    </AgenticContext.Provider>
+    </QuerySearcherContext.Provider>
   );
 }
 
-export function useAgentic(): AgenticContextType {
-  const ctx = useContext(AgenticContext);
-  if (!ctx) throw new Error('useAgentic must be used within AgenticProvider');
+export function useQuerySearcher(): QuerySearcherContextType {
+  const ctx = useContext(QuerySearcherContext);
+  if (!ctx) throw new Error('useQuerySearcher must be used within QuerySearcherProvider');
   return ctx;
 }
