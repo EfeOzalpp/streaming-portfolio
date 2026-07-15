@@ -238,7 +238,7 @@ function DynamicTheme({ onReady }) {
           <TitleDivider
             svgIcon={svgIcons['logo-small-1']}
             movingTextColors={movingTextColors}
-            pauseAnimation={pauseAnimation}
+            pauseAnimation={pauseAnimation || !isHostVisible}
             activeAlts={activeAlts}
             colorMapping={colorMapping}
           />
